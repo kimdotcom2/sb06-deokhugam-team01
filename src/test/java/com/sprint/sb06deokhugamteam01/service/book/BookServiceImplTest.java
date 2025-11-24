@@ -22,6 +22,72 @@ class BookServiceImplTest {
     private BookServiceImpl bookService;
 
     @Test
+    @DisplayName("getBookById 성공 테스트")
+    void getBookById_Success() {
+
+        //given
+        String bookId = "existing-book-id";
+
+        //when
+        BookDto result = bookService.getBookById(bookId);
+
+        //then
+        assertNotNull(result);
+        assertEquals(bookId, result.id());
+
+    }
+
+    @Test
+    @DisplayName("getBookById 실패 테스트 - 존재하지 않는 도서")
+    void getBookById_Fail_NoSuchBook() {
+
+        //given
+        String bookId = "non-existing-book-id";
+
+        //when
+        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+            bookService.getBookById(bookId);
+        });
+
+        //then
+        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("getBookByIsbn 성공 테스트")
+    void getBookByIsbn_Success() {
+
+        //given
+        String isbn = "9788966262084";
+
+        //when
+        BookDto result = bookService.getBookByIsbn(isbn);
+
+        //then
+        assertNotNull(result);
+        assertEquals(isbn, result.isbn());
+
+    }
+
+    @Test
+    @DisplayName("getBookByIsbn 실패 테스트 - 존재하지 않는 도서")
+    void getBookByIsbn_Fail_NoSuchBook() {
+
+        //given
+        String isbn = "0000000000000";
+
+        //when
+        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+            bookService.getBookByIsbn(isbn);
+        });
+
+        //then
+        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+
+    }
+
+    @Test
     @DisplayName("createBook 성공 테스트")
     void createBook_Success() {
 

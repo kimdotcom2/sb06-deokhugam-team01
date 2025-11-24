@@ -9,6 +9,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class BookServiceImpl implements  BookService {
 
     @Override
+    public BookDto getBookById(String id) {
+        return null;
+    }
+
+    @Override
+    public BookDto getBookByIsbn(String isbn) {
+        return null;
+    }
+
+    @Override
     public BookDto createBook(BookCreateRequest bookCreateRequest, @Nullable MultipartFile file) {
         return null;
     }
