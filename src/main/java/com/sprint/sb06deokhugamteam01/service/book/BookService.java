@@ -8,6 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface BookService {
 
+    BookDto getBookById(String id);
+
+    BookDto getBookByIsbn(String isbn);
+
     BookDto createBook(BookCreateRequest bookCreateRequest, @Nullable MultipartFile file);
 
     BookDto updateBook(BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file);
