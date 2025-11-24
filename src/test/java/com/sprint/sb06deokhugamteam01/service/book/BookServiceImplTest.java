@@ -2,6 +2,7 @@ package com.sprint.sb06deokhugamteam01.service.book;
 
 import com.sprint.sb06deokhugamteam01.dto.book.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.exception.book.AllReadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookInfoException;
@@ -39,16 +40,16 @@ class BookServiceImplTest {
         );
 
         //when
-        BookDto bookDto = bookService.createBook(bookCreateRequest, null);
+        BookDto result = bookService.createBook(bookCreateRequest, null);
 
         //then
-        assertNotNull(bookDto);
-        assertEquals(bookCreateRequest.title(), bookDto.title());
-        assertEquals(bookCreateRequest.author(), bookDto.author());
-        assertEquals(bookCreateRequest.description(), bookDto.description());
-        assertEquals(bookCreateRequest.publisher(), bookDto.publisher());
-        assertEquals(bookCreateRequest.publishedDate(), bookDto.publishedDate());
-        assertEquals(bookCreateRequest.isbn(), bookDto.isbn());
+        assertNotNull(result);
+        assertEquals(bookCreateRequest.title(), result.title());
+        assertEquals(bookCreateRequest.author(), result.author());
+        assertEquals(bookCreateRequest.description(), result.description());
+        assertEquals(bookCreateRequest.publisher(), result.publisher());
+        assertEquals(bookCreateRequest.publishedDate(), result.publishedDate());
+        assertEquals(bookCreateRequest.isbn(), result.isbn());
 
     }
 
@@ -153,10 +154,35 @@ class BookServiceImplTest {
     void updateBook_Success() {
 
         //given
+        String bookId = "existing-book-id";
+        BookUpdateRequest updateRequest = BookUpdateRequest.builder()
+                .title("수정된 도서 제목")
+                .author("수정된 저자")
+                .description("수정된 설명")
+                .publisher("수정된 출판사")
+                .publishedDate(LocalDate.now())
+                .build();
+
+        BookDto expectedDto = BookDto.builder()
+                .id(bookId)
+                .title(updateRequest.title())
+                .author(updateRequest.author())
+                .description(updateRequest.description())
+                .publisher(updateRequest.publisher())
+                .publishedDate(updateRequest.publishedDate())
+                .build();
 
         //when
+        BookDto result = bookService.updateBook(updateRequest, null);
 
         //then
+        assertNotNull(result);
+        assertEquals(bookId, result.id());
+        assertEquals(updateRequest.title(), result.title());
+        assertEquals(updateRequest.author(), result.author());
+        assertEquals(updateRequest.description(), result.description());
+        assertEquals(updateRequest.publisher(), result.publisher());
+        assertEquals(updateRequest.publishedDate(), result.publishedDate());
 
     }
 
@@ -165,22 +191,22 @@ class BookServiceImplTest {
     void updateBook_Fail_NoSuchBook() {
 
         //given
+        String bookId = "existing-book-id";
+        BookUpdateRequest updateRequest = BookUpdateRequest.builder()
+                .title("수정된 도서 제목")
+                .author("수정된 저자")
+                .description("수정된 설명")
+                .publisher("수정된 출판사")
+                .publishedDate(LocalDate.now())
+                .build();
 
         //when
+        NoSuchBookInfoException exception = assertThrows(NoSuchBookInfoException.class, () -> {
+            bookService.updateBook(updateRequest, null);
+        });
 
         //then
-
-    }
-
-    @Test
-    @DisplayName("updateBook 실패 테스트 - ISBN 변경 불가")
-    void updateBook_Fail_CannotUpdateIsbn() {
-
-        //given
-
-        //when
-
-        //then
+        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
 
     }
 
