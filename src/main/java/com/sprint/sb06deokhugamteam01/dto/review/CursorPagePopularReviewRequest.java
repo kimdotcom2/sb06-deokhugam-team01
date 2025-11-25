@@ -1,7 +1,10 @@
 package com.sprint.sb06deokhugamteam01.dto.review;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
+@Builder
 public record CursorPagePopularReviewRequest(
         RankCriteria period,
         String direction,

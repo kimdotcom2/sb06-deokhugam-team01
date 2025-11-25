@@ -17,10 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -138,6 +135,28 @@ class ReviewServiceTddTest {
     }
 
     @Test
+    @DisplayName("createReview 메서드는 userId에 해당하는 User를 찾을 수 없을 때 IllegalArgumentException을 던진다.")
+    void createReview_실패_User_없음() {
+        // given
+        ReviewCreateRequest request = ReviewCreateRequest.builder()
+                .bookId(bookId)
+                .userId(userId)
+                .content("테스트내용")
+                .rating(5)
+                .build();
+
+        // userRepository가 Optional.empty()를 반환하여 User가 없음을 시뮬레이션
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(testBook));
+
+        // when & then
+        assertThatThrownBy(() -> reviewService.createReview(request))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verify(reviewRepository, never()).save(any());
+    }
+
+    @Test
     @DisplayName("getReview 메서드는 호출 시 ReviewDto를 반환한다.")
     void getReview_성공(){
 
@@ -159,6 +178,21 @@ class ReviewServiceTddTest {
     }
 
     @Test
+    @DisplayName("getReview 메서드는 Review를 찾을 수 없을 때 IllegalArgumentException을 던진다.")
+    void getReview_실패_Review_없음() {
+
+        // given
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> reviewService.getReview(testReviewOperationRequest))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verify(reviewRepository, times(1)).findById(reviewId);
+        verify(userRepository, never()).findById(userId);
+    }
+
+    @Test
     @DisplayName("getReviews 메서드는 호출 시 CursorPageResponseReviewDto를 반환한다")
     void getReviews_TDD_성공() {
 
@@ -170,7 +204,7 @@ class ReviewServiceTddTest {
                 .keyword(null)
                 .orderBy(CursorPageReviewRequest.SortOrder.createdAt)
                 .direction(CursorPageReviewRequest.SortDirection.DESC)
-                .cursor(null)
+                .cursor(null) // 조회 기준은 없음
                 .after(null)
                 .limit(10)
                 .requestUserId(requestUserId)
@@ -186,9 +220,7 @@ class ReviewServiceTddTest {
                 .build();
 
         when(reviewService.getReviews(any(CursorPageReviewRequest.class)))
-                .thenReturn(mockResponse); // <- 이 라인은 ServiceImpl의 Mock이 아닌 실제 구현체를 가정할 때 사용됩니다.
-        // 현재는 @InjectMocks에 의해 실제 구현체 (로직이 없는)가 주입되므로
-        // 반드시 예외 발생 또는 null 반환으로 실패해야 합니다.
+                .thenReturn(mockResponse);
 
         // When
         CursorPageResponseReviewDto response = reviewService.getReviews(request);
@@ -197,6 +229,96 @@ class ReviewServiceTddTest {
         assertThat(response).isNotNull();
         assertThat(response.hasNext()).isFalse();
         assertThat(response.size()).isZero();
+    }
+
+    @Test
+    @DisplayName("getReviews 메서드는 limit이 유효하지 않을 때 IllegalArgumentException을 던진다.")
+    void getReviews_실패_Limit_유효성_검증() {
+
+        // Given
+        CursorPageReviewRequest invalidLimitRequest = CursorPageReviewRequest.builder()
+                .userId(userId)
+                .bookId(bookId)
+                .limit(0) // 유효성 실패
+                .orderBy(CursorPageReviewRequest.SortOrder.createdAt)
+                .direction(CursorPageReviewRequest.SortDirection.DESC)
+                .build();
+
+        // When & Then
+        // 서비스 메서드가 유효성 검사에 실패하면 IllegalArgumentException을 던진다고 가정
+        assertThatThrownBy(() -> reviewService.getReviews(invalidLimitRequest))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        // 리포지토리 메서드 호출이 없었는지 확인
+        // TODO 리포지토리 메서드는 추후 구현
+        // verify(reviewRepository, never()).findByCursor(any(), any(), any(), anyInt(), any());
+    }
+
+    @Test
+    @DisplayName("getPopularReviews 메서드는 유효한 요청으로 호출 시 CursorPageResponsePopularReviewDto를 반환한다.")
+    void getPopularReviews_성공_첫_페이지_조회() {
+
+        // Given
+        CursorPagePopularReviewRequest request = CursorPagePopularReviewRequest.builder()
+                .period(CursorPagePopularReviewRequest.RankCriteria.WEEKLY) // 주간 랭킹 조회 요청
+                .direction("DESC")
+                .cursor(null)
+                .after(null)
+                .limit(10)
+                .build();
+
+        // Mock Response 생성 (실제 리뷰 객체는 Object로 가정)
+        List<Object> mockContent = List.of(new Object(), new Object()); // 2개의 mock 리뷰
+
+        // 다음 페이지가 있다고 가정
+        String mockNextCursor = "20";
+        LocalDateTime mockNextAfter = LocalDateTime.now().minusHours(1);
+
+        CursorPageResponsePopularReviewDto mockResponse = CursorPageResponsePopularReviewDto.builder()
+                .content(mockContent)
+                .nextCursor(mockNextCursor)
+                .nextAfter(mockNextAfter)
+                .size(mockContent.size())
+                .totalElements(100)
+                .hasNext(true) // 다음 페이지가 존재함
+                .build();
+
+        // TODO Repository 메서드 Mocking으로 수정
+        when(reviewService.getPopularReviews(any(CursorPagePopularReviewRequest.class)))
+                .thenReturn(mockResponse);
+
+        // When
+        CursorPageResponsePopularReviewDto response = reviewService.getPopularReviews(request);
+
+        // Then
+        assertThat(response).isNotNull();
+        assertThat(response.hasNext()).isTrue();
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.nextCursor()).isEqualTo(mockNextCursor);
+        assertThat(response.nextAfter()).isEqualTo(mockNextAfter);
+        assertThat(response.content()).hasSize(2);
+
+        verify(reviewService, times(1)).getPopularReviews(request);
+    }
+
+    @Test
+    @DisplayName("getPopularReviews 메서드는 period가 null일 때 IllegalArgumentException을 던진다.")
+    void getPopularReviews_실패_Period_누락() {
+
+        // Given
+        CursorPagePopularReviewRequest invalidRequest = CursorPagePopularReviewRequest.builder()
+                .period(null) // 필수 필드 누락 (유효성 실패)
+                .direction("DESC")
+                .limit(10)
+                .build();
+
+        // When & Then
+        assertThatThrownBy(() -> reviewService.getPopularReviews(invalidRequest))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        // 리포지토리 메서드 호출이 없었는지 확인
+        // TODO Repository 매서드 호출 검증으로 수정
+        verify(reviewService, never()).getPopularReviews(any());
     }
 
     @Test
