@@ -12,6 +12,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
@@ -49,8 +51,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewDto getReview(ReviewOperationRequest request) {
-        userRepository.findById(request.userId()) // TODO 커스텀 예외로 대체
+    public ReviewDto getReview(ReviewOperationRequest request, UUID requestUserId) {
+        userRepository.findById(requestUserId) // TODO 커스텀 예외로 대체
                 .orElseThrow(() -> new IllegalArgumentException("해당 정보를 가진 사용자가 존재하지 않습니다."));
 
         Review review = reviewRepository.findById(request.reviewId()) // TODO 커스텀 예외로 대체
@@ -70,22 +72,25 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewDto updateReview(ReviewOperationRequest request, ReviewUpdateRequest updateRequest) {
+    public ReviewDto updateReview(ReviewOperationRequest request,
+                                  ReviewUpdateRequest updateRequest,
+                                  UUID requestUserId
+    ) {
         return null;
     }
 
     @Override
-    public void deleteReview(ReviewOperationRequest request) {
+    public void deleteReview(ReviewOperationRequest request, UUID requestUserId) {
 
     }
 
     @Override
-    public void hardDeleteReview(ReviewOperationRequest request) {
+    public void hardDeleteReview(ReviewOperationRequest request, UUID requestUserId) {
 
     }
 
     @Override
-    public ReviewLikeDto likeReview(ReviewOperationRequest request) {
+    public ReviewLikeDto likeReview(ReviewOperationRequest request, UUID requestUserId) {
         return null;
     }
 }

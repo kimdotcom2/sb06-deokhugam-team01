@@ -41,10 +41,12 @@ class ReviewServiceTddTest {
 
     private final UUID reviewId = UUID.randomUUID();
     private final UUID userId = UUID.randomUUID();
+    private final UUID requestUserId = UUID.randomUUID();
     private final UUID bookId = UUID.randomUUID();
 
     Review testReview;
     User testUser;
+    User testRequestUser;
     Book testBook;
     ReviewOperationRequest testReviewOperationRequest;
 
@@ -56,6 +58,15 @@ class ReviewServiceTddTest {
                 .email("testUser@testUser.com")
                 .nickname("testUser")
                 .password("testUser")
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        testRequestUser = User.builder()
+                .id(requestUserId)
+                .email("requestUser@requestUser.com")
+                .nickname("requestUser")
+                .password("requestUser")
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -88,7 +99,6 @@ class ReviewServiceTddTest {
 
         testReviewOperationRequest = ReviewOperationRequest.builder()
                 .reviewId(reviewId)
-                .userId(userId)
                 .build();
     }
 
@@ -161,11 +171,11 @@ class ReviewServiceTddTest {
     void getReview_성공(){
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // when
-        ReviewDto response = reviewService.getReview(testReviewOperationRequest);
+        ReviewDto response = reviewService.getReview(testReviewOperationRequest, requestUserId);
 
         // then
         assertThat(response).isNotNull();
@@ -182,14 +192,15 @@ class ReviewServiceTddTest {
     void getReview_실패_Review_없음() {
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> reviewService.getReview(testReviewOperationRequest))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> reviewService.getReview(testReviewOperationRequest, requestUserId))
+                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
 
+        verify(userRepository, times(1)).findById(requestUserId);
         verify(reviewRepository, times(1)).findById(reviewId);
-        verify(userRepository, never()).findById(userId);
     }
 
     @Test
@@ -326,8 +337,8 @@ class ReviewServiceTddTest {
     void updateReview_성공(){
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         ReviewUpdateRequest updateRequest = ReviewUpdateRequest.builder()
                 .content("수정")
@@ -335,7 +346,7 @@ class ReviewServiceTddTest {
                 .build();
 
         // when
-        ReviewDto response = reviewService.updateReview(testReviewOperationRequest, updateRequest);
+        ReviewDto response = reviewService.updateReview(testReviewOperationRequest, updateRequest, requestUserId);
 
         // then
         assertThat(testReview.getContent()).isEqualTo(updateRequest.content());
@@ -350,8 +361,8 @@ class ReviewServiceTddTest {
     void updateReview_실패_Rating_범위_초과() {
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // 유효하지 않은 rating 값 (예: 최대치인 5를 초과한 6)
         ReviewUpdateRequest invalidRequest = ReviewUpdateRequest.builder()
@@ -360,8 +371,8 @@ class ReviewServiceTddTest {
                 .build();
 
         // when & then
-        assertThatThrownBy(() -> reviewService.updateReview(testReviewOperationRequest, invalidRequest))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> reviewService.updateReview(testReviewOperationRequest, invalidRequest, requestUserId))
+                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
 
         verify(reviewRepository, never()).save(any());
     }
@@ -371,11 +382,11 @@ class ReviewServiceTddTest {
     void deleteReview_성공(){
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // when
-        reviewService.deleteReview(testReviewOperationRequest);
+        reviewService.deleteReview(testReviewOperationRequest, requestUserId);
 
         // then
         assertThat(testReview.isActive()).isFalse();
@@ -387,11 +398,11 @@ class ReviewServiceTddTest {
     void deleteReview_실패_User_없음() {
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> reviewService.deleteReview(testReviewOperationRequest))
+        assertThatThrownBy(() -> reviewService.deleteReview(testReviewOperationRequest, requestUserId))
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(reviewRepository, never()).save(testReview);
@@ -402,11 +413,11 @@ class ReviewServiceTddTest {
     void hardDeleteReview_성공() {
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // when
-        reviewService.hardDeleteReview(testReviewOperationRequest);
+        reviewService.hardDeleteReview(testReviewOperationRequest, requestUserId);
 
         // then
         verify(reviewRepository, times(1)).deleteById(reviewId);
@@ -416,11 +427,11 @@ class ReviewServiceTddTest {
     @DisplayName("hardDeleteReview 메서드는 Review를 찾을 수 없을 때 IllegalArgumentException을 던진다.")
     void hardDeleteReview_실패_Review_없음() {
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // when & then
-        assertThatThrownBy(() -> reviewService.hardDeleteReview(testReviewOperationRequest))
+        assertThatThrownBy(() -> reviewService.hardDeleteReview(testReviewOperationRequest, requestUserId))
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(reviewRepository, never()).deleteById(reviewId);
@@ -431,11 +442,11 @@ class ReviewServiceTddTest {
     void likeReview_성공() {
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // when
-        ReviewLikeDto response = reviewService.likeReview(testReviewOperationRequest);
+        ReviewLikeDto response = reviewService.likeReview(testReviewOperationRequest, requestUserId);
 
         // then
         assertThat(response).isNotNull();
@@ -451,11 +462,11 @@ class ReviewServiceTddTest {
     void likeReview_실패_Review_없음() {
 
         // given
+        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty()); // 리뷰 없음
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
 
         // when & then
-        assertThatThrownBy(() -> reviewService.likeReview(testReviewOperationRequest))
+        assertThatThrownBy(() -> reviewService.likeReview(testReviewOperationRequest, requestUserId))
                 .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
 
         verify(reviewRepository, never()).save(any());

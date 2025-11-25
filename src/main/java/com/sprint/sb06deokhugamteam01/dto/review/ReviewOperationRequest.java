@@ -10,8 +10,7 @@ import java.util.UUID;
  */
 @Builder
 public record ReviewOperationRequest(
-        UUID reviewId,
-        UUID userId
+        UUID reviewId
 ) {
 
 }
