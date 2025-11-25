@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
+import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
@@ -12,6 +13,7 @@ import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -40,6 +42,7 @@ public class BookServiceImpl implements  BookService {
         return null;
     }
 
+    @Transactional
     @Override
     public BookDto createBook(BookCreateRequest bookCreateRequest, @Nullable MultipartFile file) {
 
@@ -47,13 +50,19 @@ public class BookServiceImpl implements  BookService {
             throw new AllReadyExistsIsbnException("이미 존재하는 ISBN 입니다.");
         }
 
+        Book book = bookMapper.toNewEntity(bookCreateRequest);
 
-
-        return null;
+        return bookMapper.toDto(bookRepository.save(book));
     }
 
+    @Transactional
     @Override
-    public BookDto updateBook(BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file) {
+    public BookDto updateBook(UUID id, BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file) {
+
+        if (!bookRepository.existsById(id)) {
+            throw new NoSuchBookException("존재하지 않는 도서입니다.");
+        }
+
         return null;
     }
 
