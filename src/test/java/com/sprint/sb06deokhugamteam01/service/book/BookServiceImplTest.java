@@ -415,12 +415,12 @@ class BookServiceImplTest {
         UUID bookId = bookDto.id();
 
         //when
-        NoSuchBookException exception = assertThrows(NoSuchBookException.class, () -> {
+        RootException exception = assertThrows(NoSuchBookException.class, () -> {
             bookService.hardDeleteBookById(bookId);
         });
 
         //then
-        assertEquals("존재하지 않는 도서입니다.", exception.getMessage());
+        assertEquals("Book not found", exception.getMessage());
 
     }
 
