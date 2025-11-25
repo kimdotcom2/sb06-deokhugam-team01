@@ -6,7 +6,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
-import com.sprint.sb06deokhugamteam01.exception.book.AllReadyExistsIsbnException;
+import com.sprint.sb06deokhugamteam01.exception.book.AlReadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
 import com.sprint.sb06deokhugamteam01.mapper.book.BookMapper;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -28,13 +30,13 @@ public class BookServiceImpl implements  BookService {
     @Override
     public BookDto getBookById(UUID id) {
         return bookMapper.toDto(bookRepository.findById(id)
-                .orElseThrow(() -> new NoSuchBookException("존재하지 않는 도서입니다.")));
+                .orElseThrow(() -> new NoSuchBookException(detailMap("id", id))));
     }
 
     @Override
     public BookDto getBookByIsbn(String isbn) {
         return bookMapper.toDto(bookRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new NoSuchBookException("존재하지 않는 도서입니다.")));
+                .orElseThrow(() -> new NoSuchBookException(detailMap("isbn", isbn))));
     }
 
     @Override
@@ -47,7 +49,7 @@ public class BookServiceImpl implements  BookService {
     public BookDto createBook(BookCreateRequest bookCreateRequest, @Nullable MultipartFile file) {
 
         if (bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
-            throw new AllReadyExistsIsbnException("이미 존재하는 ISBN 입니다.");
+            throw new AlReadyExistsIsbnException(detailMap("isbn", bookCreateRequest.isbn()));
         }
 
         Book book = bookMapper.toNewEntity(bookCreateRequest);
@@ -63,7 +65,7 @@ public class BookServiceImpl implements  BookService {
     public BookDto updateBook(UUID id, BookUpdateRequest bookUpdateRequest, @Nullable MultipartFile file) {
 
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NoSuchBookException("존재하지 않는 도서입니다."));
+                .orElseThrow(() -> new NoSuchBookException(detailMap("id", id)));
 
         book.updateBook(
                 bookUpdateRequest.title(),
@@ -82,7 +84,7 @@ public class BookServiceImpl implements  BookService {
     public void deleteBookById(UUID id) {
 
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NoSuchBookException("존재하지 않는 도서입니다."));
+                .orElseThrow(() -> new NoSuchBookException(detailMap("id", id)));
 
         book.softDelete();
 
@@ -93,7 +95,7 @@ public class BookServiceImpl implements  BookService {
     public void hardDeleteBookById(UUID id) {
 
         if (!bookRepository.existsById(id)) {
-            throw new NoSuchBookException("존재하지 않는 도서입니다.");
+            throw new NoSuchBookException(detailMap("id", id));
         }
 
         bookRepository.deleteById(id);
@@ -101,4 +103,11 @@ public class BookServiceImpl implements  BookService {
         //ToDo: 연관관계 매핑된 리뷰들 모두 삭제하기
 
     }
+
+    private Map<String, Object> detailMap(String key, Object value) {
+        Map<String, Object> details = new HashMap<>();
+        details.put(key, value);
+        return details;
+    }
+
 }
