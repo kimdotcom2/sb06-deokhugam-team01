@@ -45,15 +45,15 @@ public class Book {
 
     private String thumbnailUrl;
 
-    private int reviewCount;
+    private int reviewCount = 0;
 
-    private double rating;
+    private double rating = 0.0;
 
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private boolean isActive;
+    private boolean isActive = true;
 
 }
