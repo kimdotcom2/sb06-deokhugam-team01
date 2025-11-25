@@ -52,7 +52,10 @@ public class BookServiceImpl implements  BookService {
 
         Book book = bookMapper.toNewEntity(bookCreateRequest);
 
+        //ToDo: S3 파일 업로드 처리
+
         return bookMapper.toDto(bookRepository.save(book));
+
     }
 
     @Transactional
@@ -94,6 +97,8 @@ public class BookServiceImpl implements  BookService {
         }
 
         bookRepository.deleteById(id);
+
+        //ToDo: 연관관계 매핑된 리뷰들 모두 삭제하기
 
     }
 }
