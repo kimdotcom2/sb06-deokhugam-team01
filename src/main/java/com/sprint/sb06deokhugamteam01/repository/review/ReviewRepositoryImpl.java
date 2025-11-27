@@ -34,8 +34,6 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
             Integer limit,
             Pageable pageable
     ){
-        // 다음 페이지 존재여부 확인 (hasNext)
-        int queryLimit = limit + 1;
 
         List<Review> results = queryFactory
                 .selectFrom(r)
@@ -46,16 +44,16 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         userIdEq(userId),
                         bookIdEq(bookId),
                         keywordContains(keyword),
-
+                        // soft delete 고려
                         r.isActive.isTrue()
                 )
                 .orderBy(
-                        // 4. 주 정렬 조건 (Cursor Field)
+                        // 주 정렬 조건
                         getOrderSpecifier(ascending, useRating),
-                        // 5. 보조 정렬 조건 (Tie-breaker, 고유 ID)
+                        // 보조 정렬 조건
                         getTieBreakerOrder(ascending)
                 )
-                .limit(queryLimit) // limit보다 하나 더 요청
+                .limit(limit + 1) // limit보다 하나 더 요청해 hasNext 확인
                 .fetch();
 
         // SliceImpl 반환을 위한 후처리
@@ -64,15 +62,15 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
             results.remove(limit.intValue()); // 요청한 개수 초과분은 제거
         }
 
-        // Pageable은 결과가 limit보다 작거나 같으면 hasNext=false로 자동 설정됩니다.
+        // Pageable은 결과가 limit보다 작거나 같으면 hasNext=false로 자동 설정됨.
         return new SliceImpl<>(results, pageable, hasNext);
     }
 
-    // ------------------- where 절 Predicate 생성 메서드 -------------------
-
     /**
-     * 커서 기반 페이지네이션을 위한 조건 (주 커서와 보조 커서 동시 처리)
+     * where 절 predicate 메서드들.
+     * predicate: 참/거짓을 판단하는 조건, 이를 만족하는 데이터만 DB에서 조회되게 함.
      */
+    // 커서 기반 페이지네이션을 위한 조건 (주 커서와 보조 커서 동시 처리)
     private Predicate cursorCondition(String cursor, LocalDateTime after, boolean ascending, boolean useRating) {
         if (cursor == null) {
             return null; // 첫 페이지 조회
@@ -80,44 +78,54 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
         // 주 커서 필드 (rating 또는 createdAt)
         if (useRating) {
-            // rating과 createdAt을 동시에 비교
+            // rating 기준
             if (ascending) { // ASC: rating이 커지거나 (같으면) createdAt이 커지는 경우
-                return r.rating.gt(Integer.parseInt(cursor))
-                        .or(r.rating.eq(Integer.parseInt(cursor)).and(r.createdAt.gt(after)));
+                return r.rating.gt(Integer.parseInt(cursor)) // gt = greater than
+                        .or(
+                                r.rating.eq(Integer.parseInt(cursor)).and(r.createdAt.gt(after))
+                        );
             } else { // DESC: rating이 작아지거나 (같으면) createdAt이 작아지는 경우
-                return r.rating.lt(Integer.parseInt(cursor))
-                        .or(r.rating.eq(Integer.parseInt(cursor)).and(r.createdAt.lt(after)));
+                return r.rating.lt(Integer.parseInt(cursor)) // lt = less than
+                        .or(
+                                r.rating.eq(Integer.parseInt(cursor)).and(r.createdAt.lt(after))
+                        );
             }
         } else {
-            // createdAt만 사용 (createdAt이 주 커서인 경우)
-            if (ascending) { // ASC: createdAt이 커지는 경우 (더 나중에 생성된 리뷰)
+            // createdAt 기준
+            if (ascending) { // ASC: createdAt이 커지는 경우 (오래된순)
                 return r.createdAt.gt(after);
-            } else { // DESC: createdAt이 작아지는 경우 (더 먼저 생성된 리뷰)
+            } else { // DESC: createdAt이 작아지는 경우 (최신순)
                 return r.createdAt.lt(after);
             }
         }
     }
+    // TODO rating 기준은 (rating, createdAt, id), createdAt 기준은 (createdAt, id) 복합 인덱스 필요
 
+    // 작성자 ID 완전 일치 조건
     private Predicate userIdEq(UUID userId) {
         return userId != null ? r.user.id.eq(userId) : null;
     }
 
+    // 도서 ID 완전 일치 조건
     private Predicate bookIdEq(UUID bookId) {
         return bookId != null ? r.book.id.eq(bookId) : null;
     }
 
+    // keyword - 도서명, 리뷰 내용, 리뷰작성자 닉네임 부분 일치 조건
     private Predicate keywordContains(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
             return null;
         }
-        // keyword가 내용(content) 또는 사용자 닉네임에 포함되는지 검색
         return r.content.containsIgnoreCase(keyword)
-                .or(r.user.nickname.containsIgnoreCase(keyword));
+                .or(r.user.nickname.containsIgnoreCase(keyword))
+                .or(r.book.title.containsIgnoreCase(keyword));
     }
 
-    // ------------------- orderBy 절 OrderSpecifier 생성 메서드 -------------------
-
-    /** 주 커서 필드 정렬 (rating 또는 createdAt) */
+    /**
+     * orderBy 절 OrderSpecifier 생성 메서드들
+     * OrderSpecifier: 어떤 필드를 어떤 방향(오름차순/내림차순)으로 정렬할지 정의하는 스펙
+     */
+    // 주 커서 필드 정렬 (rating 또는 createdAt)
     private OrderSpecifier<?> getOrderSpecifier(boolean ascending, boolean useRating) {
         Order order = ascending ? Order.ASC : Order.DESC;
 
@@ -128,13 +136,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         }
     }
 
-    /** 보조 정렬 조건 (Tie-breaker): ID를 기준으로 정렬 */
+    // 보조 정렬 조건 (Tie-breaker): ID를 기준으로 정렬
     private OrderSpecifier<?> getTieBreakerOrder(boolean ascending) {
-        // 커서 페이징은 항상 ID로 정렬 방향을 고정하는 것이 일반적이지만,
-        // 여기서는 주 커서의 방향과 동일하게 설정하여 일관성을 유지합니다.
         Order order = ascending ? Order.ASC : Order.DESC;
         return new OrderSpecifier<>(order, r.id);
     }
+
 
     @Override
     public Slice<Review> getPopularReviews(
@@ -158,7 +165,10 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         r.isActive.isTrue()
                 )
                 // 4. 정렬 조건 (likeCount -> createdAt)
-                .orderBy(getPopularOrderSpecifiers(descending))
+                .orderBy(
+                        getPrimaryOrderSpecifier(descending),
+                        getSecondaryOrderSpecifier(descending)
+                        )
                 .limit(queryLimit)
                 .fetch();
 
@@ -171,9 +181,10 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return new SliceImpl<>(results, pageable, hasNext);
     }
 
-    // ------------------- Predicate 생성 메서드 -------------------
-
-    /** 인기 순위 기간에 따른 createdAt 필터링 조건 생성 */
+    /**
+    where절 Predicate 생성 메서드들
+     */
+    // 기간에 따른 createdAt 필터링 조건 생성
     private Predicate periodCondition(CursorPagePopularReviewRequest.RankCriteria period) {
         if (period == null || period == CursorPagePopularReviewRequest.RankCriteria.ALL_TIME) {
             return null;
@@ -194,10 +205,10 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 return null;
         }
         // startDateTime 이후에 생성된 리뷰만 포함
-        return r.createdAt.goe(startDateTime);
+        return r.createdAt.goe(startDateTime); // goe = greater or equal
     }
 
-    /** 인기 순위 커서 조건 (likeCount와 createdAt 조합) */
+    // 인기 순위 커서 조건 (likeCount와 createdAt 조합)
     private Predicate popularCursorCondition(String cursor, LocalDateTime after, boolean descending) {
         if (cursor == null) {
             return null; // 첫 페이지 조회
@@ -209,28 +220,35 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
             if (descending) {
                 // DESC: likeCount < cursor OR (likeCount == cursor AND createdAt < after)
                 return r.likeCount.lt(cursorLikeCount)
-                        .or(r.likeCount.eq(cursorLikeCount).and(r.createdAt.lt(after)));
+                        .or(
+                                r.likeCount.eq(cursorLikeCount).and(r.createdAt.lt(after))
+                        );
             } else {
                 // ASC: likeCount > cursor OR (likeCount == cursor AND createdAt > after)
                 return r.likeCount.gt(cursorLikeCount)
-                        .or(r.likeCount.eq(cursorLikeCount).and(r.createdAt.gt(after)));
+                        .or(
+                                r.likeCount.eq(cursorLikeCount).and(r.createdAt.gt(after))
+                        );
             }
         } catch (NumberFormatException e) {
             // 커서가 유효한 정수가 아닐 경우 예외 처리
-            // 실제 환경에서는 Custom Exception으로 처리해야 함
+            // TODO 커스텀 예외로 대체
             throw new IllegalArgumentException("유효하지 않은 커서 형식입니다: " + cursor);
         }
     }
 
-    // ------------------- OrderSpecifier 생성 메서드 -------------------
-
-    /** 주 정렬 (likeCount)와 보조 정렬 (createdAt) 정의 */
-    private OrderSpecifier<?>[] getPopularOrderSpecifiers(boolean descending) {
+    /**
+    OrderSpecifier 생성 메서드
+     */
+    // 주 정렬 조건 (Primary)
+    private OrderSpecifier<?> getPrimaryOrderSpecifier(boolean descending) {
         Order order = descending ? Order.DESC : Order.ASC;
+        return new OrderSpecifier<>(order, r.likeCount);
+    }
 
-        return new OrderSpecifier[]{
-                new OrderSpecifier<>(order, r.likeCount), // Primary: likeCount
-                new OrderSpecifier<>(order, r.createdAt)  // Secondary: createdAt (Tie-breaker)
-        };
+    // 보조 정렬 조건 (Secondary/Tie-breaker)
+    private OrderSpecifier<?> getSecondaryOrderSpecifier(boolean descending) {
+        Order order = descending ? Order.DESC : Order.ASC;
+        return new OrderSpecifier<>(order, r.createdAt);
     }
 }
