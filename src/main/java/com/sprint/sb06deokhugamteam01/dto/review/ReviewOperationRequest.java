@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.dto.review;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 import java.util.UUID;
@@ -10,6 +11,8 @@ import java.util.UUID;
  */
 @Builder
 public record ReviewOperationRequest(
+
+        @NotBlank(message = "리뷰 ID는 공백일 수 없습니다.")
         UUID reviewId
 ) {
 
