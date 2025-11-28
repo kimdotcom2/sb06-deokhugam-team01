@@ -43,6 +43,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public List<Notification> updateAll(UUID userId) {
         List<Notification> notifications = notificationRepository.findAllByUserIdAndConfirmedFalse(userId);
         notifications.forEach(Notification::confirm);
