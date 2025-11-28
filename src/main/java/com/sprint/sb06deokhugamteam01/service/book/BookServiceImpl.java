@@ -7,7 +7,7 @@ import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
-import com.sprint.sb06deokhugamteam01.exception.book.AlReadyExistsIsbnException;
+import com.sprint.sb06deokhugamteam01.exception.book.AlreadyExistsIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
@@ -76,7 +76,7 @@ public class BookServiceImpl implements  BookService {
     public BookDto createBook(BookCreateRequest bookCreateRequest, @Nullable MultipartFile file) {
 
         if (bookRepository.existsByIsbn(bookCreateRequest.isbn())) {
-            throw new AlReadyExistsIsbnException(detailMap("isbn", bookCreateRequest.isbn()));
+            throw new AlreadyExistsIsbnException(detailMap("isbn", bookCreateRequest.isbn()));
         }
 
         Book book = BookCreateRequest.fromDto(bookCreateRequest);

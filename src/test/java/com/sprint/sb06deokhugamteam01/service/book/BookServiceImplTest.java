@@ -226,7 +226,7 @@ class BookServiceImplTest {
                 .thenReturn(true);
 
         //when
-        AlReadyExistsIsbnException exception = assertThrows(AlReadyExistsIsbnException.class, () -> {
+        AlreadyExistsIsbnException exception = assertThrows(AlreadyExistsIsbnException.class, () -> {
             bookService.createBook(bookCreateRequest, null);
         });
 
