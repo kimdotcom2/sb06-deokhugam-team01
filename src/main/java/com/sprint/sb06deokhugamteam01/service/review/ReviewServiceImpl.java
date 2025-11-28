@@ -76,12 +76,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(readOnly = true)
-    public ReviewDto getReview(ReviewOperationRequest request, UUID requestUserId) {
+    public ReviewDto getReview(UUID reviewId, UUID requestUserId) {
 
         userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
-        UUID reviewId = request.reviewId();
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
@@ -214,14 +213,13 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewDto updateReview(ReviewOperationRequest request,
+    public ReviewDto updateReview(UUID reviewId,
                                   ReviewUpdateRequest updateRequest,
                                   UUID requestUserId
     ) {
         User user = userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
-        UUID reviewId = request.reviewId();
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
@@ -243,12 +241,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void deleteReview(ReviewOperationRequest request, UUID requestUserId) {
+    public void deleteReview(UUID reviewId, UUID requestUserId) {
 
         userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
-        UUID reviewId = request.reviewId();
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
@@ -258,12 +255,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void hardDeleteReview(ReviewOperationRequest request, UUID requestUserId) {
+    public void hardDeleteReview(UUID reviewId, UUID requestUserId) {
 
         userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
-        UUID reviewId = request.reviewId();
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
@@ -275,12 +271,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewLikeDto likeReview(ReviewOperationRequest request, UUID requestUserId) {
+    public ReviewLikeDto likeReview(UUID reviewId, UUID requestUserId) {
 
         userRepository.findById(requestUserId)
                 .orElseThrow(() -> new UserNotFoundException(detailMap("userId", requestUserId)));
 
-        UUID reviewId = request.reviewId();
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
