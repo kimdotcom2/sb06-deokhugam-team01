@@ -9,4 +9,7 @@ public class CommentAccessDeniedException extends RootException {
     public CommentAccessDeniedException() {
         super(ErrorCode.COMMENT_ACCESS_DENIED);
     }
+    public CommentAccessDeniedException(Map<String, Object> details) {
+        super(ErrorCode.COMMENT_ACCESS_DENIED, details);
+    }
 }

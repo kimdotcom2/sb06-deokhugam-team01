@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -33,8 +34,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto createComment(CommentCreateRequest request) {
         log.debug("댓글 생성 시작: request={}", request);
-        User user = userRepository.findById(request.userId()).orElseThrow(() -> new UserNotFoundException(new HashMap<>()));
-        Review review = reviewRepository.findById(request.reviewId()).orElseThrow(() -> new ReviewNotFoundException(new HashMap<>()));
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new UserNotFoundException(Map.of("userId", request.userId())));
+        Review review = reviewRepository.findById(request.reviewId())
+                .orElseThrow(() -> new ReviewNotFoundException(Map.of("reviewId", request.reviewId())));
 
         Comment comment = Comment.builder().user(user).review(review).content(request.content()).build();
         commentRepository.save(comment);
@@ -47,10 +50,11 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto updateComment(UUID commentId, UUID userId, CommentUpdateRequest request) {
         log.debug("댓글 수정 시작: id={}, request={}", commentId,  request);
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(Map.of("commentId", commentId)));
         // 작성자 아이디와 요청자 아이디 불일치 시 접근 예외
         if(!comment.getUser().getId().equals(userId)){
-            throw new CommentAccessDeniedException();
+            throw new CommentAccessDeniedException(Map.of("userId", userId));
         }
         comment.update(request.content());
         log.info("댓글 수정 완료: id={}", commentId);
