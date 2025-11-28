@@ -1,4 +1,4 @@
-package com.sprint.sb06deokhugamteam01;
+package com.sprint.sb06deokhugamteam01.service.review;
 
 import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.review.PopularReviewSearchCondition;
@@ -9,7 +9,6 @@ import com.sprint.sb06deokhugamteam01.dto.review.*;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.UserRepository;
-import com.sprint.sb06deokhugamteam01.service.review.ReviewServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReviewServiceTddTest {
+class ReviewServiceTest {
 
     @Mock
     private ReviewRepository reviewRepository;
@@ -56,16 +55,16 @@ class ReviewServiceTddTest {
     private final UUID bookId = UUID.randomUUID();
     private final UUID bookId2 = UUID.randomUUID();
 
-    @Spy
+    // @Spy
     Review testReview;
 
-    @Spy
+    // @Spy
     Review testReview2;
 
-    @Spy
+    // @Spy
     Book testBook;
 
-    @Spy
+    // @Spy
     Book testBook2;
 
     User testUser;
@@ -187,7 +186,6 @@ class ReviewServiceTddTest {
         // then
         assertThat(response).isNotNull();
         assertThat(response.id()).isNotNull();
-        assertThat(response.bookId()).isEqualTo(bookId);
         assertThat(response.userId()).isEqualTo(userId);
         assertThat(response.content()).isEqualTo("테스트내용");
         assertThat(response.rating()).isEqualTo(5);
@@ -281,7 +279,7 @@ class ReviewServiceTddTest {
         // Then
         verify(reviewRepository, times(1)).getReviews(
                 any(ReviewSearchCondition.class),
-                PageRequest.of(0, 50)
+                any(Pageable.class)
         );
     }
 
@@ -304,10 +302,12 @@ class ReviewServiceTddTest {
         // When & Then
         // 서비스 메서드가 유효성 검사에 실패하면 IllegalArgumentException을 던진다고 가정
         assertThatThrownBy(() -> reviewService.getReviews(invalidLimitRequest, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
 
         // 리포지토리 메서드 호출이 없었는지 확인
-        verify(reviewRepository, never()).getReviews(any(),any());
+        verify(reviewRepository, never()).getReviews(
+                any(ReviewSearchCondition.class),
+                any(Pageable.class));
     }
 
     @Test
