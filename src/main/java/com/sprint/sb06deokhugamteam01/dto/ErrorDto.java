@@ -16,7 +16,7 @@ public record ErrorDto (
     String message,
     int status,
     String code,
-    Map<String, String> details,
+    Map<String, Object> details,
 
     LocalDateTime timestamp,
     String exceptionType
