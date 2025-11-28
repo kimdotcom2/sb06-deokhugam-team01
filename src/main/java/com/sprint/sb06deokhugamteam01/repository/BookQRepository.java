@@ -24,10 +24,11 @@ public interface BookQRepository extends QuerydslJpaRepository<Book, UUID> {
 
         List<Book> bookList = selectFrom(qBook)
                 .where(buildPredicate(pagingBookRequest).and(qBook.isActive.isTrue()))
-                .orderBy(buildOrderBy(pagingBookRequest))
-                .orderBy(pagingBookRequest.direction() == PagingBookRequest.SortDirection.ASC
-                        ? qBook.createdAt.asc()
-                        : qBook.createdAt.desc())
+                .orderBy(
+                        buildOrderBy(pagingBookRequest),
+                        pagingBookRequest.direction() == PagingBookRequest.SortDirection.ASC ?
+                                qBook.createdAt.asc() : qBook.createdAt.desc()
+                )
                 .limit(pagingBookRequest.limit() + 1)
                 .fetch();
 
