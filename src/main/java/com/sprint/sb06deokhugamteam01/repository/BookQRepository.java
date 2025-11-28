@@ -23,7 +23,7 @@ public interface BookQRepository extends QuerydslJpaRepository<Book, UUID> {
     default Slice<Book> findBooksByKeyword(PagingBookRequest pagingBookRequest) {
 
         List<Book> bookList = selectFrom(qBook)
-                .where(buildPredicate(pagingBookRequest))
+                .where(buildPredicate(pagingBookRequest).and(qBook.isActive.isTrue()))
                 .orderBy(buildOrderBy(pagingBookRequest))
                 .orderBy(pagingBookRequest.direction() == PagingBookRequest.SortDirection.ASC
                         ? qBook.createdAt.asc()
