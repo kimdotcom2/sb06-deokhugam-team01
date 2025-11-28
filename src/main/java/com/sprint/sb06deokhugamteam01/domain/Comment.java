@@ -69,7 +69,7 @@ public class Comment {
     }
 
     // 논리 삭제 편의를 위한 엔티티 내부 메소드
-    public void delete() {
+    public void markAsDeleted() {
         this.isActive = false;
     }
 }
