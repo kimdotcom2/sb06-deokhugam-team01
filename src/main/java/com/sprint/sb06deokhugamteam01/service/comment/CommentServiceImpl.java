@@ -5,8 +5,9 @@ import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentListRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentUpdateRequest;
-import com.sprint.sb06deokhugamteam01.dto.comment.response.CursorPageResponseCommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.response.CursorPageCommentResponse;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentAccessDeniedException;
 import com.sprint.sb06deokhugamteam01.exception.comment.CommentNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
@@ -102,7 +103,12 @@ public class CommentServiceImpl implements CommentService {
     // 리뷰 댓글 목록 조회
     @Transactional(readOnly = true)
     @Override
-    public CursorPageResponseCommentDto getComments(UUID reviewId){
+    public CursorPageCommentResponse getComments(CommentListRequest request) {
+        if(!reviewRepository.existsById(request.reviewId())) {
+            throw new ReviewNotFoundException(Map.of("reviewId", request.reviewId()));
+        }
 
+        log.info("리뷰 댓글 목록 조회 완료: reviewId={}", request.reviewId());
+        return
     }
 }

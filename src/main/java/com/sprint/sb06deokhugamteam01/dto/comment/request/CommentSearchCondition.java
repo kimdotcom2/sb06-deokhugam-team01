@@ -1,13 +1,11 @@
 package com.sprint.sb06deokhugamteam01.dto.comment.request;
 
-import lombok.Builder;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Builder
-public record CommentListRequest(
+public record CommentSearchCondition(
         UUID reviewId,
         Sort.Direction direction,
         String cursor,

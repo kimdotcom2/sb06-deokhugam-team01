@@ -2,9 +2,9 @@ package com.sprint.sb06deokhugamteam01.controller;
 
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentListRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentUpdateRequest;
-import com.sprint.sb06deokhugamteam01.dto.comment.response.CursorPageResponseCommentDto;
-import com.sprint.sb06deokhugamteam01.enums.SortDirection;
+import com.sprint.sb06deokhugamteam01.dto.comment.response.CursorPageCommentResponse;
 import com.sprint.sb06deokhugamteam01.service.comment.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -87,13 +87,15 @@ public class CommentController {
 
     // 리뷰 댓글 목록 조회
     @GetMapping
-    public ResponseEntity<CursorPageResponseCommentDto> getComments(@RequestParam("reviewId") UUID reviewId,
-                                                                    @RequestParam(defaultValue = "DESC") Sort.Direction direction,
-                                                                    @RequestParam(required = false) String cursor,
-                                                                    @RequestParam(required = false)LocalDateTime after,
-                                                                    @RequestParam(defaultValue = "50") int limit){
+    public ResponseEntity<CursorPageCommentResponse> getComments(@RequestParam("reviewId") UUID reviewId,
+                                                                 @RequestParam(defaultValue = "DESC") Sort.Direction direction,
+                                                                 @RequestParam(required = false) String cursor,
+                                                                 @RequestParam(required = false)LocalDateTime after,
+                                                                 @RequestParam(defaultValue = "50") int limit){
         log.info("리뷰 댓글 목록 조회 요청: reviewId={}", reviewId);
-        CursorPageResponseCommentDto comments = commentService.getComments();
+        CommentListRequest request = CommentListRequest.builder().direction(direction).cursor(cursor)
+                                    .after(after).limit(limit).build();
+        CursorPageCommentResponse comments = commentService.getComments(request);
         log.debug("리뷰 댓글 목록 조회 응답: reviewID={}", reviewId);
         return ResponseEntity
                 .status(HttpStatus.OK)

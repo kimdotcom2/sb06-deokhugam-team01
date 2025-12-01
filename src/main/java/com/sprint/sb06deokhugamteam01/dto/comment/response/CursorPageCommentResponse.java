@@ -7,12 +7,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record CursorPageResponseCommentDto(
+public record CursorPageCommentResponse(
         List<CommentDto> content,
         String nextCursor,
         LocalDateTime nextAfter,
         int size,
         int totalElements,
         boolean hasNext
-) {
-}
+) {}

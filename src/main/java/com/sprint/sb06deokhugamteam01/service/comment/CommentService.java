@@ -2,15 +2,16 @@ package com.sprint.sb06deokhugamteam01.service.comment;
 
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentListRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentUpdateRequest;
-import com.sprint.sb06deokhugamteam01.dto.comment.response.CursorPageResponseCommentDto;
+import com.sprint.sb06deokhugamteam01.dto.comment.response.CursorPageCommentResponse;
 
 import java.util.UUID;
 
 public interface CommentService {
-    CommentDto createComment(CommentCreateRequest commentCreateRequest);
+    CommentDto createComment(CommentCreateRequest request);
 
-    CommentDto updateComment(UUID commentId, UUID userId, CommentUpdateRequest commentUpdateRequest);
+    CommentDto updateComment(UUID commentId, UUID userId, CommentUpdateRequest request);
 
     void deleteComment(UUID commentId, UUID userId);
 
@@ -18,5 +19,5 @@ public interface CommentService {
 
     CommentDto getComment(UUID commentId);
 
-    CursorPageResponseCommentDto getComments(UUID reviewId);
+    CursorPageCommentResponse getComments(CommentListRequest request);
 }
