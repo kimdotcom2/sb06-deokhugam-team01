@@ -19,7 +19,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@DataJpaTest
+//@SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("BookQRepository 테스트")
 class BookQRepositoryTest {
