@@ -2,6 +2,7 @@ package com.sprint.sb06deokhugamteam01.service.book;
 
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
+import com.sprint.sb06deokhugamteam01.exception.book.NoSuchBookException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,8 +44,8 @@ class NaverBookSearchServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 ISBN으로 도서 검색 테스트")
-    void testSearchBookByIsbn_Fail_InvalidIsbnException() {
+    @DisplayName("도서 검색 결과 없음")
+    void testSearchBookByIsbn_Fail_NoSuchBookException() {
 
         //given
         String invalidIsbn = "0000000000000"; // 존재하지 않는 ISBN
@@ -52,7 +53,7 @@ class NaverBookSearchServiceTest {
         //when
 
         //then
-        assertThrows(InvalidIsbnException.class, () -> {
+        assertThrows(NoSuchBookException.class, () -> {
             naverBookSearchService.searchBookByIsbn(invalidIsbn);
         });
 
