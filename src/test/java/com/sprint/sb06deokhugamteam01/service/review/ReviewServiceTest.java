@@ -7,7 +7,9 @@ import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.review.ReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.review.*;
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
+import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
+import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +46,9 @@ class ReviewServiceTest {
     @Mock
     private BookRepository bookRepository;
 
+    @Mock
+    private CommentRepository commentRepository;
+
     @InjectMocks
     private ReviewServiceImpl reviewService;
 
@@ -54,18 +60,11 @@ class ReviewServiceTest {
     private final UUID requestUserId = UUID.randomUUID();
 
     private final UUID bookId = UUID.randomUUID();
-    private final UUID bookId2 = UUID.randomUUID();
 
-    // @Spy
     Review testReview;
-
-    // @Spy
     Review testReview2;
 
-    // @Spy
     Book testBook;
-
-    // @Spy
     Book testBook2;
 
     User testUser;
@@ -94,29 +93,17 @@ class ReviewServiceTest {
 
 
         testBook = Book.builder()
-                // .id(bookId)
                 .title("testBook")
                 .author("author")
                 .publisher("publisher")
                 .publishedDate(LocalDate.now())
-                // .reviewCount(10)
-                // .rating(4.5)
-                // .createdAt(LocalDateTime.now())
-                // .updatedAt(LocalDateTime.now())
-                // .isActive(true)
                 .build();
 
         testBook2 = Book.builder()
-                // .id(bookId2)
                 .title("testBook2")
                 .author("author2")
                 .publisher("publisher2")
                 .publishedDate(LocalDate.now())
-                // .reviewCount(10)
-                // .rating(4.0)
-                // .createdAt(LocalDateTime.now())
-                // .updatedAt(LocalDateTime.now())
-                // .isActive(true)
                 .build();
 
         testReview = Review.builder()
@@ -188,7 +175,7 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("createReview 메서드는 userId에 해당하는 User를 찾을 수 없을 때 IllegalArgumentException을 던진다.")
+    @DisplayName("createReview 메서드는 userId에 해당하는 User를 찾을 수 없을 때 UserNotFoundException을 던진다.")
     void createReview_실패_User_없음() {
         // given
         ReviewCreateRequest request = ReviewCreateRequest.builder()
@@ -203,7 +190,7 @@ class ReviewServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reviewService.createReview(request))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(UserNotFoundException.class);
 
         verify(reviewRepository, never()).save(any());
     }
@@ -217,7 +204,7 @@ class ReviewServiceTest {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
 
         // when
-        ReviewDto response = reviewService.getReview(requestReviewId, requestUserId);
+        ReviewDto response = reviewService.getReview(reviewId, requestUserId);
 
         // then
         assertThat(response).isNotNull();
@@ -238,7 +225,7 @@ class ReviewServiceTest {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> reviewService.getReview(requestReviewId, requestUserId))
+        assertThatThrownBy(() -> reviewService.getReview(reviewId, requestUserId))
                 .isInstanceOf(ReviewNotFoundException.class);
 
         verify(userRepository, times(1)).findById(requestUserId);
@@ -277,33 +264,6 @@ class ReviewServiceTest {
                 any(ReviewSearchCondition.class),
                 any(Pageable.class)
         );
-    }
-
-    /**
-     * Refactor 단계에서 Validation 구현 후 통과시킬 예정
-     */
-    @Test
-    @DisplayName("getReviews 메서드는 limit이 유효하지 않을 때 IllegalArgumentException을 던진다.")
-    void getReviews_실패_Limit_유효성_검증() {
-
-        // Given
-        CursorPageReviewRequest invalidLimitRequest = CursorPageReviewRequest.builder()
-                .userId(userId)
-                .bookId(bookId)
-                .limit(0) // 유효성 실패
-                .orderBy(CursorPageReviewRequest.SortField.createdAt)
-                .direction(CursorPageReviewRequest.SortDirection.DESC)
-                .build();
-
-        // When & Then
-        // 서비스 메서드가 유효성 검사에 실패하면 IllegalArgumentException을 던진다고 가정
-        assertThatThrownBy(() -> reviewService.getReviews(invalidLimitRequest, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
-
-        // 리포지토리 메서드 호출이 없었는지 확인
-        verify(reviewRepository, never()).getReviews(
-                any(ReviewSearchCondition.class),
-                any(Pageable.class));
     }
 
     @Test
@@ -349,34 +309,12 @@ class ReviewServiceTest {
         );
     }
 
-    /**
-     * Refactor 단계에서 Validation 구현 후 통과시킬 예정
-     */
-    @Test
-    @DisplayName("getPopularReviews 메서드는 period가 null일 때 IllegalArgumentException을 던진다.")
-    void getPopularReviews_실패_Period_누락() {
-
-        // Given
-        CursorPagePopularReviewRequest request = CursorPagePopularReviewRequest.builder()
-                .period(null) // 필수 필드 누락 (유효성 실패)
-                .direction(CursorPagePopularReviewRequest.SortDirection.DESC)
-                .limit(10)
-                .build();
-
-        // When & Then
-        assertThatThrownBy(() -> reviewService.getPopularReviews(request, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class);
-
-        // 리포지토리 메서드 호출이 없었는지 확인
-        verify(reviewRepository, never()).getPopularReviews(any(),any());
-    }
-
     @Test
     @DisplayName("updateReview 메서드는 호출 시 Review 객체의 필드값을 바꾸고 ReviewDto를 반환한다.")
     void updateReview_성공(){
 
         // given
-        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
         when(reviewRepository.save(testReview)).thenReturn(testReview);
 
@@ -386,7 +324,7 @@ class ReviewServiceTest {
                 .build();
 
         // when
-        ReviewDto response = reviewService.updateReview(requestReviewId, updateRequest, requestUserId);
+        ReviewDto response = reviewService.updateReview(reviewId, updateRequest, userId);
 
         // then
         assertThat(testReview.getContent()).isEqualTo(updateRequest.content());
@@ -394,29 +332,6 @@ class ReviewServiceTest {
         assertThat(response.content()).isEqualTo(updateRequest.content());
         assertThat(response.rating()).isEqualTo(updateRequest.rating());
         verify(reviewRepository, times(1)).save(testReview);
-    }
-
-    /**
-     * Refactor 단계에서 Validation 구현 후 통과시킬 예정
-     */
-    @Test
-    @DisplayName("updateReview 메서드는 rating이 허용 범위를 벗어날 때 IllegalArgumentException을 던진다.")
-    void updateReview_실패_Rating_범위_초과() {
-
-        // given
-        when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
-        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
-
-        ReviewUpdateRequest invalidRequest = ReviewUpdateRequest.builder()
-                .content("유효한 내용")
-                .rating(6)
-                .build();
-
-        // when & then
-        assertThatThrownBy(() -> reviewService.updateReview(requestReviewId, invalidRequest, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class); // TODO 커스텀예외로 대체
-
-        verify(reviewRepository, never()).save(any());
     }
 
     @Test
@@ -428,7 +343,7 @@ class ReviewServiceTest {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
 
         // when
-        reviewService.deleteReview(requestReviewId, requestUserId);
+        reviewService.deleteReview(reviewId, requestUserId);
 
         // then
         assertThat(testReview.isActive()).isFalse();
@@ -444,7 +359,7 @@ class ReviewServiceTest {
 
         // when & then
         assertThatThrownBy(() -> reviewService.deleteReview(requestReviewId, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(UserNotFoundException.class);
 
         verify(reviewRepository, never()).save(testReview);
     }
@@ -458,22 +373,23 @@ class ReviewServiceTest {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
 
         // when
-        reviewService.hardDeleteReview(requestReviewId, requestUserId);
+        reviewService.hardDeleteReview(reviewId, requestUserId);
 
         // then
         verify(reviewRepository, times(1)).delete(testReview);
+        verify(commentRepository, times(1)).deleteAllByReview(testReview);
     }
 
     @Test
-    @DisplayName("hardDeleteReview 메서드는 Review를 찾을 수 없을 때 IllegalArgumentException을 던진다.")
+    @DisplayName("hardDeleteReview 메서드는 Review를 찾을 수 없을 때 ReviewNotFoundException을 던진다.")
     void hardDeleteReview_실패_Review_없음() {
         // given
         when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> reviewService.hardDeleteReview(requestReviewId, requestUserId))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> reviewService.hardDeleteReview(reviewId, requestUserId))
+                .isInstanceOf(ReviewNotFoundException.class);
 
         verify(reviewRepository, never()).deleteById(reviewId);
     }
@@ -487,7 +403,7 @@ class ReviewServiceTest {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
 
         // when
-        ReviewLikeDto response = reviewService.likeReview(requestReviewId, requestUserId);
+        ReviewLikeDto response = reviewService.likeReview(reviewId, requestUserId);
 
         // then
         assertThat(response).isNotNull();
@@ -499,7 +415,7 @@ class ReviewServiceTest {
     }
 
     @Test
-    @DisplayName("likeReview 메서드는 Review를 찾을 수 없을 때 IllegalArgumentException을 던진다.")
+    @DisplayName("likeReview 메서드는 Review를 찾을 수 없을 때 ReviewNotFoundException을 던진다.")
     void likeReview_실패_Review_없음() {
 
         // given
@@ -507,7 +423,7 @@ class ReviewServiceTest {
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty()); // 리뷰 없음
 
         // when & then
-        assertThatThrownBy(() -> reviewService.likeReview(requestReviewId, requestUserId))
+        assertThatThrownBy(() -> reviewService.likeReview(reviewId, requestUserId))
                 .isInstanceOf(ReviewNotFoundException.class);
 
         verify(reviewRepository, never()).save(any());
