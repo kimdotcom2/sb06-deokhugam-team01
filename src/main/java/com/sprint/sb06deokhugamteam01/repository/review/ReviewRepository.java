@@ -9,8 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
-@Repository
-public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewQRepository {
+public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRepositoryCustom {
 
     boolean existsByUserAndBook(User user, Book book);
 

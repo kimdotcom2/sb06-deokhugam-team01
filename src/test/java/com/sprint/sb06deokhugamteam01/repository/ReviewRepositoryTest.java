@@ -1,18 +1,22 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
+import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
 import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.review.PopularReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.domain.review.ReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.review.CursorPagePopularReviewRequest;
-import com.sprint.sb06deokhugamteam01.repository.review.ReviewQRepository;
+import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -25,12 +29,17 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DataJpaTest
+@DataJpaTest(includeFilters = @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE,
+        classes = {
+                ReviewRepository.class, QueryDslConfig.class
+        }
+))
 @ActiveProfiles("test")
 class ReviewRepositoryTest {
 
     @Autowired
-    private ReviewQRepository reviewQRepository;
+    private ReviewRepository reviewRepository;
 
     @Autowired
     private EntityManager em; // 데이터 준비를 위해 사용
@@ -55,32 +64,37 @@ class ReviewRepositoryTest {
     @BeforeEach
     void setup() {
 
+        reviewRepository.deleteAll();
+
         testUser1 = User.builder()
-                .id(USER_ID_1)
+//                .id(USER_ID_1)
                 .email("testUser@testUser.com")
                 .nickname("testUser")
                 .password("testUser")
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .build();
+        testUser1 = em.merge(testUser1);
 
         testUser2 = User.builder()
-                .id(USER_ID_2)
+//                .id(USER_ID_2)
                 .email("testUser2@testUser2.com")
                 .nickname("testUser2")
                 .password("testUser2")
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .build();
+        testUser2 = em.merge(testUser2);
 
         testRequestUser = User.builder()
-                .id(REQUEST_USER_ID)
+//                .id(REQUEST_USER_ID)
                 .email("requestUser@requestUser.com")
                 .nickname("requestUser")
                 .password("requestUser")
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .build();
+        testRequestUser = em.merge(testRequestUser);
 
         testBook1 = Book.builder()
                 .title("testBook")
@@ -88,6 +102,7 @@ class ReviewRepositoryTest {
                 .publisher("publisher")
                 .publishedDate(LocalDate.now())
                 .build();
+        testBook1 = em.merge(testBook1);
 
         testBook2 = Book.builder()
                 .title("testBook2")
@@ -95,50 +110,56 @@ class ReviewRepositoryTest {
                 .publisher("publisher2")
                 .publishedDate(LocalDate.now())
                 .build();
+        testBook2 = em.merge(testBook2);
 
         testReview1 = Review.builder()
-                .id(UUID.randomUUID()) // ID 명시적 생성
+//                .id(UUID.randomUUID()) // ID 명시적 생성
                 .rating(5)
-                .likeCount(20)
+                .likeCount(50)
                 .isActive(true)
                 .user(testUser1)
                 .book(testBook1)
                 .content("Review 1 content")
+                .createdAt(LocalDateTime.now())
                 .build();
-        em.persist(testReview1);
+        testReview1 = em.merge(testReview1);
 
         testReview2 = Review.builder()
-                .id(UUID.randomUUID())
+//                .id(UUID.randomUUID())
                 .rating(4)
-                .likeCount(10)
+                .likeCount(40)
                 .isActive(true)
                 .user(testUser1)
                 .book(testBook2)
                 .content("Review 2 content")
+                .createdAt(LocalDateTime.now())
                 .build();
-        em.persist(testReview2);
+        testReview2 = em.merge(testReview2);
 
         testReview3 = Review.builder()
-                .id(UUID.randomUUID())
+//                .id(UUID.randomUUID())
                 .rating(3)
                 .likeCount(30)
                 .isActive(true)
                 .user(testUser2)
                 .book(testBook1)
                 .content("Review 3 content")
+                .createdAt(LocalDateTime.now())
                 .build();
-        em.persist(testReview3);
+        testReview3 = em.merge(testReview3);
 
         testReview4 = Review.builder()
-                .id(UUID.randomUUID())
+//                .id(UUID.randomUUID())
                 .rating(2)
                 .likeCount(20)
-                .isActive(false) // Inactive 리뷰
+                .isActive(false)
                 .user(testUser2)
                 .book(testBook2)
                 .content("Review 4 content")
+                .createdAt(LocalDateTime.now())
                 .build();
-        em.persist(testReview4);
+        testReview4 = em.merge(testReview4);
+
         em.flush();
         em.clear();
     }
@@ -148,18 +169,18 @@ class ReviewRepositoryTest {
     void getReviews_default() {
 
         // given
-        Pageable pageable = PageRequest.ofSize(3);
+        Pageable pageable = PageRequest.ofSize(2);
         ReviewSearchCondition condition = ReviewSearchCondition.builder()
-                .limit(3)
+                .limit(2)
                 .build();
 
         // when
-        Slice<Review> slice = reviewQRepository.getReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
         assertThat(slice.getContent()).hasSize(2);
         assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
-                .containsExactly(testReview4.getId(), testReview3.getId());
+                .containsExactly(testReview3.getId(), testReview2.getId());
         assertThat(slice.hasNext()).isTrue();
     }
 
@@ -171,20 +192,21 @@ class ReviewRepositoryTest {
         Pageable pageable = PageRequest.ofSize(2);
         ReviewSearchCondition condition = ReviewSearchCondition.builder()
                 .cursor(testReview2.getCreatedAt().toString())
+                .after(testReview2.getCreatedAt())
                 .limit(2)
                 .build();
         // when
-        Slice<Review> slice = reviewQRepository.getReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
         assertThat(slice.getContent()).hasSize(1);
         assertThat(slice.getContent()).extracting("id") // 시간순 정렬 확인
-                .containsExactly(testReview2.getId(), testReview1.getId());
+                .containsExactly(testReview1.getId());
         assertThat(slice.hasNext()).isFalse(); // 남은 데이터 없음
     }
 
     @Test
-    @DisplayName("리뷰 다건 조회 성공 - 평점 기준 내림차순, 다음 페이지")
+    @DisplayName("리뷰 다건 조회 성공 - 평점 기준 오름차순, 다음 페이지")
     void getReviews_cursor_rating_desc() {
 
         // given
@@ -198,28 +220,29 @@ class ReviewRepositoryTest {
                 .build();
 
         // when
-        Slice<Review> slice = reviewQRepository.getReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
-        assertThat(slice.getContent()).hasSize(2);
+        assertThat(slice.getContent()).hasSize(1);
         assertThat(slice.getContent()).extracting("id")
-                .containsExactly(testReview3.getId(), testReview4.getId());
+                .containsExactly(testReview1.getId());
         assertThat(slice.hasNext()).isFalse();
     }
 
     @Test
     @DisplayName("리뷰 다건 조회 성공 - 사용자 ID 및 도서 ID로 조회")
     void getReviews_filter_user_and_book() {
+
         // given
         Pageable pageable = PageRequest.ofSize(10);
         ReviewSearchCondition condition = ReviewSearchCondition.builder()
-                .userId(USER_ID_1)
-                .bookId(BOOK_ID_A)
+                .userId(testUser1.getId())
+                .bookId(testBook1.getId())
                 .limit(10)
                 .build();
 
         // when
-        Slice<Review> slice = reviewQRepository.getReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
         assertThat(slice.getContent()).hasSize(1);
@@ -238,57 +261,53 @@ class ReviewRepositoryTest {
                 .build();
 
         // when
-        Slice<Review> slice = reviewQRepository.getReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getReviews(condition, pageable);
 
         // then
-        assertThat(slice.getContent()).hasSize(4);
-        assertThat(slice.getContent().get(0).getId()).isEqualTo(testReview4.getId());
+        assertThat(slice.getContent()).hasSize(3);
+        assertThat(slice.getContent().get(0).getId()).isEqualTo(testReview3.getId());
         assertThat(slice.hasNext()).isFalse();
     }
 
     @Test
-    @DisplayName("인기 리뷰 다건 조회 성공 - 전체 기간 (likeCount DESC, createdAt DESC)")
-    void getPopularReviews_success_allTime() {
+    @DisplayName("인기 리뷰 다건 조회 성공 - 기본값")
+    void getPopularReviews_success() {
+
         // given
         Pageable pageable = PageRequest.ofSize(2);
         PopularReviewSearchCondition condition = PopularReviewSearchCondition.builder()
-                .period(CursorPagePopularReviewRequest.RankCriteria.ALL_TIME)
-                .descending(true)
                 .limit(2)
                 .build();
 
         // when
-        Slice<Review> slice = reviewQRepository.getPopularReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getPopularReviews(condition, pageable);
 
         // then
         assertThat(slice.getContent()).hasSize(2);
         assertThat(slice.getContent()).extracting("id")
-                .containsExactly(testReview1.getId(), testReview2.getId());
+                .containsExactly(testReview3.getId(), testReview2.getId()); // testReview4는 soft delete됨
         assertThat(slice.hasNext()).isTrue();
     }
 
     @Test
-    @DisplayName("인기 리뷰 다건 조회 성공 - likeCount-createdAt 복합 커서 (DESC)")
+    @DisplayName("인기 리뷰 다건 조회 성공 - 내림차순, 다음페이지")
     void getPopularReviews_success_cursor_desc() {
+
         // given
         Pageable pageable = PageRequest.ofSize(1);
-        // 커서: review1 (like=20, createdAt=BASE_TIME)
-        // r1과 좋아요 수가 같거나 낮은 리뷰 중, 정렬 순서상 다음에 와야 하는 리뷰를 찾습니다.
         PopularReviewSearchCondition condition = PopularReviewSearchCondition.builder()
                 .period(CursorPagePopularReviewRequest.RankCriteria.ALL_TIME)
                 .descending(true)
-                .cursor("20")
+                .cursor("15") // testReview1의 점수
                 .after(testReview1.getCreatedAt())
                 .limit(1)
                 .build();
 
         // when
-        Slice<Review> slice = reviewQRepository.getPopularReviews(condition, pageable);
+        Slice<Review> slice = reviewRepository.getPopularReviews(condition, pageable);
 
         // then
         assertThat(slice.getContent()).hasSize(1);
-        // likeCount < 20 인 항목 중 가장 높은 항목: r2(10) 또는 r5(10)
-        // 동점 처리: r2(10, +1s), r5(10, +4s) -> DESC 정렬이므로 r2(+1s)가 먼저 와야 합니다.
         assertThat(slice.getContent()).extracting("id")
                 .containsExactly(testReview2.getId());
         assertThat(slice.hasNext()).isTrue();
@@ -302,14 +321,14 @@ class ReviewRepositoryTest {
         PopularReviewSearchCondition condition = PopularReviewSearchCondition.builder()
                 .period(CursorPagePopularReviewRequest.RankCriteria.ALL_TIME)
                 .descending(true)
-                .cursor("string")
+                .cursor("string") // 점수가 아닌 문자열
                 .after(testReview1.getCreatedAt())
                 .limit(1)
                 .build();
 
         // when & then
-        assertThrows(IllegalArgumentException.class, () -> {
-            reviewQRepository.getPopularReviews(condition, pageable);
+        assertThrows(InvalidDataAccessApiUsageException.class, () -> { // TODO 커스텀예외 사용
+            reviewRepository.getPopularReviews(condition, pageable);
         });
     }
 

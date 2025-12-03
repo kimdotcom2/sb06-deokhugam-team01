@@ -1,20 +1,16 @@
-package com.sprint.sb06deokhugamteam01.service.review;
+package com.sprint.sb06deokhugamteam01.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.sb06deokhugamteam01.controller.ReviewController;
 import com.sprint.sb06deokhugamteam01.dto.review.*;
-import com.sprint.sb06deokhugamteam01.exception.GlobalExceptionHandler;
+import com.sprint.sb06deokhugamteam01.service.review.ReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.servlet.View;
 
 import java.util.List;
 import java.util.UUID;

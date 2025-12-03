@@ -4,12 +4,13 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sprint.sb06deokhugamteam01.domain.review.PopularReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.domain.review.QReview;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.domain.review.ReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.review.CursorPagePopularReviewRequest;
-import io.github.openfeign.querydsl.jpa.spring.repository.QuerydslJpaRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -20,14 +21,18 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ReviewQRepository extends QuerydslJpaRepository<Review, UUID> {
+@RequiredArgsConstructor
+public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
-    QReview qReview = QReview.review;
+    private final JPAQueryFactory queryFactory;
+    private final QReview qReview = QReview.review;
 
-    default Slice<Review> getReviews(ReviewSearchCondition condition, Pageable pageable) {
+    @Override
+    public Slice<Review> getReviews(ReviewSearchCondition condition, Pageable pageable) {
 
         Integer limit = condition.limit();
-        List<Review> results = selectFrom(qReview)
+        List<Review> results = queryFactory
+                .selectFrom(qReview)
                 .where(
                         // 커서 조건
                         cursorCondition(
@@ -94,7 +99,7 @@ public interface ReviewQRepository extends QuerydslJpaRepository<Review, UUID> {
             }
         }
     }
-    // TODO rating 기준은 (rating, createdAt, id), createdAt 기준은 (createdAt, id) 복합 인덱스 필요ㄹ
+    // TODO rating 기준은 (rating, createdAt, id), createdAt 기준은 (createdAt, id) 복합 인덱스 필요
 
     // 작성자 ID 완전 일치 조건
     private Predicate userIdEq(UUID userId) {
@@ -140,17 +145,15 @@ public interface ReviewQRepository extends QuerydslJpaRepository<Review, UUID> {
 
 
 
-
-
-
-
-    default Slice<Review> getPopularReviews(PopularReviewSearchCondition condition, Pageable pageable) {
+    @Override
+    public Slice<Review> getPopularReviews(PopularReviewSearchCondition condition, Pageable pageable) {
 
         Integer limit = condition.limit();
         boolean descending = condition.descending();
         NumberExpression<Double> scoreExpression = getScoreExpression();
 
-        List<Review> results = selectFrom(qReview)
+        List<Review> results = queryFactory
+                .selectFrom(qReview)
                 .where(
                         // 1. 기간 필터링 (DAILY, WEEKLY 등)
                         periodCondition(condition.period()),
@@ -186,7 +189,7 @@ public interface ReviewQRepository extends QuerydslJpaRepository<Review, UUID> {
      */
     private NumberExpression<Double> getScoreExpression() {
 
-        // null 값 안전을 위해 coalesce(0)을 적용했습니다.
+        // null 값 안전을 위해 coalesce(0)을 적용
         return qReview.likeCount.coalesce(0).doubleValue().multiply(0.3)
                 .add(qReview.commentCount.coalesce(0).doubleValue().multiply(0.7));
     }
