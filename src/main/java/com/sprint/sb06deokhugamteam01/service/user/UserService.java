@@ -1,8 +1,10 @@
 package com.sprint.sb06deokhugamteam01.service.user;
 
 import com.sprint.sb06deokhugamteam01.domain.User;
+import com.sprint.sb06deokhugamteam01.dto.User.request.PowerUserRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.User.response.CursorPageResponsePowerUserDto;
 import com.sprint.sb06deokhugamteam01.dto.User.response.UserDto;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +27,5 @@ public interface UserService {
 
     void hardDeleteUser(UUID userId);
 
-    void purgeDeletedUsersBefore(LocalDateTime cutoff);
-
-    List<User> getPowerUserList(String period, String direction, String cursor, LocalDateTime after, Integer limit);
+    CursorPageResponsePowerUserDto getPowerUserList(PowerUserRequest request);
 }

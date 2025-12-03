@@ -234,15 +234,6 @@ class UserServiceTest {
         verify(userRepository).save(user);
     }
 
-    @Test
-    void purgeDeletedUsersBefore_shouldDelegateToRepository() {
-        LocalDateTime cutoff = LocalDateTime.now().minusDays(1);
-
-        target.purgeDeletedUsersBefore(cutoff);
-
-        verify(userRepository).deleteAllSoftDeletedBefore(cutoff);
-    }
-
     private User randomUser(boolean active) {
         UUID id = easyRandom.nextObject(UUID.class);
         return User.builder()

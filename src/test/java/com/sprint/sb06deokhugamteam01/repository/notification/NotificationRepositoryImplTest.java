@@ -122,9 +122,11 @@ class NotificationRepositoryImplTest {
             .content(content)
             .confirmed(false)
             .build();
+        entityManager.persist(notification);
+        entityManager.flush(); // ensure ID generated
         ReflectionTestUtils.setField(notification, "createdAt", createdAt);
         ReflectionTestUtils.setField(notification, "updatedAt", createdAt);
-        entityManager.persist(notification);
+        entityManager.flush(); // push manual timestamps
         return notification;
     }
 }

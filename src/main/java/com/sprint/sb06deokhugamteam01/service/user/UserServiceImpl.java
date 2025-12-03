@@ -1,10 +1,16 @@
 package com.sprint.sb06deokhugamteam01.service.user;
 
 import com.sprint.sb06deokhugamteam01.domain.User;
+import com.sprint.sb06deokhugamteam01.domain.batch.BatchUserRating;
+import com.sprint.sb06deokhugamteam01.dto.User.request.PowerUserRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
+import com.sprint.sb06deokhugamteam01.dto.User.response.CursorPageResponsePowerUserDto;
+import com.sprint.sb06deokhugamteam01.dto.User.response.PowerUserDto;
+import com.sprint.sb06deokhugamteam01.dto.User.response.UserDto;
 import com.sprint.sb06deokhugamteam01.exception.common.UnauthorizedAccessException;
 import com.sprint.sb06deokhugamteam01.exception.user.InvalidUserException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
+import com.sprint.sb06deokhugamteam01.repository.user.BatchUserRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -12,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final BatchUserRatingRepository batchUserRatingRepository;
 
     @Override
     @Transactional
@@ -97,15 +105,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public void purgeDeletedUsersBefore(LocalDateTime cutoff) {
-        userRepository.deleteAllSoftDeletedBefore(cutoff);
-    }
-
-    @Override
     @Transactional(readOnly = true)
-    public List<User> getPowerUserList(String period, String direction, String cursor, LocalDateTime after, Integer limit){
-        return null;
+    public CursorPageResponsePowerUserDto getPowerUserList(PowerUserRequest request) {
+        Slice<BatchUserRating> slice = batchUserRatingRepository.getBatchUserRatingList(
+            request.period(), request.direction(), request.cursor(), request.after(),
+            request.limit());
+
+        List<PowerUserDto> content = slice.getContent().stream()
+                .map(PowerUserDto::fromBatchUserRating)
+                .toList();
+
+        String nextCursor = null;
+        String nextAfter = null;
+        if (slice.hasNext() && !slice.isEmpty()) {
+            BatchUserRating last = slice.getContent().get(slice.getContent().size() - 1);
+            nextCursor = last.getId().toString();
+            nextAfter = last.getCreatedAt().toString();
+        }
+
+        return CursorPageResponsePowerUserDto.builder()
+                .content(content)
+                .nextCursor(nextCursor)
+                .nextAfter(nextAfter)
+                .size(content.size())
+                .totalElements(content.size())
+                .hasNext(slice.hasNext())
+                .build();
     }
 
     private User getExistingUser(UUID userId) {

@@ -9,7 +9,8 @@ import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
-import com.sprint.sb06deokhugamteam01.repository.batch.BatchUserRatingRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.BatchUserRatingRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ public class RatingAggregationService {
     private final BatchBookRatingRepository batchBookRatingRepository;
     private final BatchReviewRatingRepository batchReviewRatingRepository;
     private final BatchUserRatingRepository batchUserRatingRepository;
+    private final UserRepository userRepository;
 
     @PersistenceContext
     private EntityManager em;

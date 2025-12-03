@@ -16,9 +16,10 @@ import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
-import com.sprint.sb06deokhugamteam01.repository.batch.BatchUserRatingRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.BatchUserRatingRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,9 @@ class RatingAggregationServiceTest {
 
     @Autowired
     private BatchUserRatingRepository batchUserRatingRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     private User author;
     private User liker;
