@@ -1,4 +1,4 @@
-package com.sprint.sb06deokhugamteam01.dto.review;
+package com.sprint.sb06deokhugamteam01.dto.review.response;
 
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;

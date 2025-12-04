@@ -1,14 +1,12 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
-import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.domain.review.PopularReviewSearchCondition;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
-import com.sprint.sb06deokhugamteam01.domain.review.ReviewSearchCondition;
-import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
-import com.sprint.sb06deokhugamteam01.dto.review.CursorPagePopularReviewRequest;
-import com.sprint.sb06deokhugamteam01.exception.review.InvalidReviewCursorException;
+import com.sprint.sb06deokhugamteam01.dto.review.PopularReviewSearchCondition;
+import com.sprint.sb06deokhugamteam01.domain.Review;
+import com.sprint.sb06deokhugamteam01.dto.review.ReviewSearchCondition;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPagePopularReviewRequest;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -60,23 +57,31 @@ class ReviewRepositoryTest {
 
         reviewRepository.deleteAll();
 
-        UserRegisterRequest userRequest1 = new UserRegisterRequest(
-            "testUser@testUser.com", "testUser", "testUser"
-        );
-        UserRegisterRequest userRequest2 = new UserRegisterRequest(
-            "testUser2@testUser2.com", "testUser2", "testUser2"
-        );
-        UserRegisterRequest requestUserRequest = new UserRegisterRequest(
-            "requestUser@requestUser.com", "requestUser", "requestUser"
-        );
-
-        testUser1 = User.toEntity(userRequest1);
+        testUser1 = User.builder()
+                .email("testUser@testUser.com")
+                .nickname("testUser")
+                .password("testUser")
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
         testUser1 = em.merge(testUser1);
 
-        testUser2 = User.toEntity(userRequest2);
+        testUser2 = User.builder()
+                .email("testUser2@testUser2.com")
+                .nickname("testUser2")
+                .password("testUser2")
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
         testUser2 = em.merge(testUser2);
 
-        testRequestUser = User.toEntity(userRequest1);
+        testRequestUser = User.builder()
+                .email("requestUser@requestUser.com")
+                .nickname("requestUser")
+                .password("requestUser")
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
         testRequestUser = em.merge(testRequestUser);
 
         testBook1 = Book.builder()
@@ -163,7 +168,7 @@ class ReviewRepositoryTest {
         assertThat(slice.hasNext()).isTrue();
     }
 
-    /*@Test
+    @Test
     @DisplayName("리뷰 다건 조회 성공 - 기본 조회, 최신순 2개, 다음 페이지")
     void getReviews_cursor_createdAt_desc() {
 
@@ -206,7 +211,7 @@ class ReviewRepositoryTest {
         assertThat(slice.getContent()).extracting("id")
                 .containsExactly(testReview1.getId());
         assertThat(slice.hasNext()).isFalse();
-    }*/
+    }
 
     @Test
     @DisplayName("리뷰 다건 조회 성공 - 사용자 ID 및 도서 ID로 조회")

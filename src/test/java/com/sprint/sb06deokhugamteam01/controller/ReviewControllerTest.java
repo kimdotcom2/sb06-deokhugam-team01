@@ -1,7 +1,14 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.sb06deokhugamteam01.dto.review.*;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPagePopularReviewRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPageReviewRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.ReviewCreateRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.ReviewUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponsePopularReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponseReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewLikeDto;
 import com.sprint.sb06deokhugamteam01.service.review.ReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

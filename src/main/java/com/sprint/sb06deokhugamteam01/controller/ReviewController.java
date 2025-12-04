@@ -1,6 +1,13 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
-import com.sprint.sb06deokhugamteam01.dto.review.*;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPagePopularReviewRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.CursorPageReviewRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.ReviewCreateRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.request.ReviewUpdateRequest;
+import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponsePopularReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.CursorPageResponseReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewDto;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewLikeDto;
 import com.sprint.sb06deokhugamteam01.service.review.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController

@@ -1,7 +1,4 @@
-package com.sprint.sb06deokhugamteam01.domain.review;
-
-import com.sprint.sb06deokhugamteam01.domain.Book;
-import com.sprint.sb06deokhugamteam01.domain.User;
+package com.sprint.sb06deokhugamteam01.domain;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

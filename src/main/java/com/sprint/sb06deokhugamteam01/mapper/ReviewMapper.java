@@ -2,8 +2,8 @@ package com.sprint.sb06deokhugamteam01.mapper;
 
 import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
-import com.sprint.sb06deokhugamteam01.dto.review.ReviewDto;
+import com.sprint.sb06deokhugamteam01.domain.Review;
+import com.sprint.sb06deokhugamteam01.dto.review.response.ReviewDto;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
