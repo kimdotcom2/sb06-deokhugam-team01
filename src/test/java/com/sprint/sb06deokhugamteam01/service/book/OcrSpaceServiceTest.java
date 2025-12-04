@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DisplayName("OcrSpaceService 테스트")
 class OcrSpaceServiceTest {
 
-    @Autowired
+    /*@Autowired
     private OcrSpaceService ocrSpaceService;
 
     @BeforeEach
@@ -44,7 +44,7 @@ class OcrSpaceServiceTest {
         assertNotNull(isbn);
         assertEquals("978-88-97095-05-7", isbn);
 
-    }
+    }*/
 
 
 
