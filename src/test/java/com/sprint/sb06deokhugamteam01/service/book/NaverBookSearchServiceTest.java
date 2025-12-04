@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -19,8 +20,24 @@ class NaverBookSearchServiceTest {
     @Autowired
     private NaverBookSearchService naverBookSearchService;
 
+    @Value("${naver.api.client-id}")
+    private String clientId;
+
+    @Value("${naver.api.client-secret}")
+    private String clientSecret;
+
     @BeforeEach
     void setUp() {
+    }
+
+    @Test
+    @DisplayName("환경 변수 주입 테스트")
+    void testEnvironmentVariables() {
+        //then
+        assertNotNull(clientId);
+        assertNotNull(clientSecret);
+        assertFalse(clientId.isEmpty(), "Client ID should not be empty");
+        assertFalse(clientSecret.isEmpty(), "Client Secret should not be empty");
     }
 
     @Test

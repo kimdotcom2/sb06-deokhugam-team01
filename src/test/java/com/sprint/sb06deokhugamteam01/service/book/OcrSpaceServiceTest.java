@@ -3,7 +3,7 @@ package com.sprint.sb06deokhugamteam01.service.book;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DisplayName("OcrSpaceService 테스트")
 class OcrSpaceServiceTest {
 
-    @InjectMocks
+    @Autowired
     private OcrSpaceService ocrSpaceService;
 
     @BeforeEach
