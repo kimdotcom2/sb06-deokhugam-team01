@@ -1,7 +1,7 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
-import com.sprint.sb06deokhugamteam01.domain.Book;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.domain.review.PopularReviewSearchCondition;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
@@ -24,7 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
