@@ -36,7 +36,7 @@ class OcrSpaceServiceTest {
 
         //then
         assertNotNull(isbn);
-        assertEquals("978-89-954321-1004820", isbn);
+        assertEquals("978-88-97095-05-7", isbn);
 
     }
 
