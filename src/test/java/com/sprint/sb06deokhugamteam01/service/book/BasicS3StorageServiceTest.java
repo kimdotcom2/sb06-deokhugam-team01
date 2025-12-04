@@ -4,16 +4,36 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles("test")
 @DisplayName("BasicS3StorageService 테스트")
 class BasicS3StorageServiceTest {
+
+    @Autowired
+    private BasicS3StorageService basicS3StorageService;
 
     @Test
     @DisplayName("putObject 성공 테스트")
     void putObject_Success() {
+
+        //given
+        String id = UUID.randomUUID().toString();
+        byte[] content = "content".getBytes();
+
+        //when
+        String putResult = basicS3StorageService.putObject(id, content);
+
+        //then
+        assertEquals(id, putResult);
+        basicS3StorageService.deleteObject(id);
 
     }
 
