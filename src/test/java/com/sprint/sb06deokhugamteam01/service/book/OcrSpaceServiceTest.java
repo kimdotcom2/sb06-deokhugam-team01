@@ -3,10 +3,9 @@ package com.sprint.sb06deokhugamteam01.service.book;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,8 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles("test")
 @DisplayName("OcrSpaceService 테스트")
 class OcrSpaceServiceTest {
 
@@ -25,8 +25,6 @@ class OcrSpaceServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(ocrSpaceService, "ocrSpaceApiEndpoint", "https://api.ocr.space/parse/image");
-        ReflectionTestUtils.setField(ocrSpaceService, "apiKey", System.getenv("OCR_SPACE_API_KEY"));
     }
 
     @Test

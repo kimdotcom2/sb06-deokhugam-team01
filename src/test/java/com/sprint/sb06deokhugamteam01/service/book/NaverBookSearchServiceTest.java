@@ -5,25 +5,22 @@ import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-@DisplayName("NaverBookSearchService 테스트")
+@SpringBootTest
+@ActiveProfiles("test")
+@DisplayName("NaverBookSearchService 통합 테스트")
 class NaverBookSearchServiceTest {
 
-    @InjectMocks
+    @Autowired
     private NaverBookSearchService naverBookSearchService;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(naverBookSearchService, "naverApiEndpoint", "https://openapi.naver.com/v1/search/book_adv.json");
-        ReflectionTestUtils.setField(naverBookSearchService, "apiClientId", System.getenv("NAVER_API_CLIENT_ID"));
-        ReflectionTestUtils.setField(naverBookSearchService, "apiClientSecret", System.getenv("NAVER_API_CLIENT_SECRET"));
     }
 
     @Test
