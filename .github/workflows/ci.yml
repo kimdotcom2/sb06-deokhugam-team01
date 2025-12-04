@@ -22,19 +22,11 @@ jobs:
           java-version: "17"
           cache: gradle
 
-      - name : check pwd
-        run : |
-            pwd
-            ls -al
-
       - name: make env files
         run: echo ${{secrets.ENV}} >> .env
 
       - name: check env files
-        run: |
-            pwd
-            ls -al
-            cat .env
+        run: cat .env
 
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
