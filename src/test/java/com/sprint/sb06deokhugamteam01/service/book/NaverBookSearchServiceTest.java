@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-@TestPropertySource(locations = "classpath:application-test.properties")
-@ActiveProfiles("test")
 @DisplayName("NaverBookSearchService 테스트")
 class NaverBookSearchServiceTest {
 
@@ -25,6 +25,9 @@ class NaverBookSearchServiceTest {
 
     @BeforeEach
     void setUp() {
+        ReflectionTestUtils.setField(naverBookSearchService, "naverApiEndpoint", "https://openapi.naver.com/v1/search/book_adv.json");
+        ReflectionTestUtils.setField(naverBookSearchService, "apiClientId", System.getenv("NAVER_API_CLIENT_ID"));
+        ReflectionTestUtils.setField(naverBookSearchService, "apiClientSecret", System.getenv("NAVER_API_CLIENT_SECRET"));
     }
 
     @Test
