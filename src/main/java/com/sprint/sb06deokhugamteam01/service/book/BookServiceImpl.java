@@ -90,9 +90,9 @@ public class BookServiceImpl implements  BookService {
         Book book = BookCreateRequest.fromDto(bookCreateRequest);
 
         //S3 파일 업로드 처리
-        UUID id = UUID.randomUUID();
+        UUID fileId = UUID.randomUUID();
         try {
-            s3StorageService.putObject(String.valueOf(id), file.getBytes());
+            book.updateThumbnailUrl(s3StorageService.putObject(String.valueOf(fileId), file.getBytes()));
         } catch (IOException e) {
             throw new S3UploadFailedException(detailMap("fileName", Objects.requireNonNull(file.getOriginalFilename())));
         }
@@ -125,6 +125,14 @@ public class BookServiceImpl implements  BookService {
 
         if (!book.isActive()) {
             throw new BookNotFoundException(detailMap("id", id));
+        }
+
+        //S3 파일 업로드 처리
+        UUID fileId = UUID.randomUUID();
+        try {
+            book.updateThumbnailUrl(s3StorageService.putObject(String.valueOf(fileId), file.getBytes()));
+        } catch (IOException e) {
+            throw new S3UploadFailedException(detailMap("fileName", Objects.requireNonNull(file.getOriginalFilename())));
         }
 
         book.updateBook(

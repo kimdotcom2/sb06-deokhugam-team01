@@ -73,6 +73,10 @@ public class Book {
         this.publishedDate = publishedDate;
     }
 
+    public void updateThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
     public void softDelete() {
         this.isActive = false;
     }
