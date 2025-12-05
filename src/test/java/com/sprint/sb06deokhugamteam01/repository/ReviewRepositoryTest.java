@@ -107,7 +107,7 @@ class ReviewRepositoryTest {
                 .user(testUser1)
                 .book(testBook1)
                 .content("Review 1 content")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().minusDays(4))
                 .build();
         testReview1 = em.merge(testReview1);
 
@@ -118,7 +118,7 @@ class ReviewRepositoryTest {
                 .user(testUser1)
                 .book(testBook2)
                 .content("Review 2 content")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().minusDays(3))
                 .build();
         testReview2 = em.merge(testReview2);
 
@@ -129,7 +129,7 @@ class ReviewRepositoryTest {
                 .user(testUser2)
                 .book(testBook1)
                 .content("Review 3 content")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().minusDays(2))
                 .build();
         testReview3 = em.merge(testReview3);
 
@@ -292,8 +292,8 @@ class ReviewRepositoryTest {
 
         // then
         assertThat(slice.getContent()).hasSize(1);
-//        assertThat(slice.getContent()).extracting("id")
-//                .containsExactly(testReview2.getId());
+        assertThat(slice.getContent()).extracting("id")
+                .containsExactly(testReview2.getId());
         assertThat(slice.hasNext()).isTrue();
     }
 
