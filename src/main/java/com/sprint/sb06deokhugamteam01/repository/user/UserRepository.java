@@ -1,4 +1,4 @@
-package com.sprint.sb06deokhugamteam01.repository;
+package com.sprint.sb06deokhugamteam01.repository.user;
 
 import com.sprint.sb06deokhugamteam01.domain.User;
 import java.time.LocalDateTime;
@@ -15,6 +15,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     @Modifying
-    @Query("delete from User u where u.deletedAt < :cutoff")
-    void deleteAllSoftDeletedBefore(LocalDateTime cutoff);
+    @Query("DELETE FROM User u WHERE u.isActive = false")
+    void deleteByIsActiveFalse();
 }
