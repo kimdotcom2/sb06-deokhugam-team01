@@ -31,7 +31,7 @@ public class BookController {
             ) {
         log.info("Received Book get request: keyword={}", request.keyword());
         CursorPageResponseBookDto response = bookService.getBooksByPage(request);
-        log.info("Books retrieved successfully: {}", response);
+        log.info("Books retrieved successfully: {}", request.keyword());
 
         return ResponseEntity.ok(response);
 
