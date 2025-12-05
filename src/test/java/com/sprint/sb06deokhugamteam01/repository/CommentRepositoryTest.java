@@ -2,9 +2,9 @@ package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.config.JpaAuditingConfig;
 import com.sprint.sb06deokhugamteam01.config.QueryDslConfig;
-import com.sprint.sb06deokhugamteam01.domain.Book;
 import com.sprint.sb06deokhugamteam01.domain.Comment;
 import com.sprint.sb06deokhugamteam01.domain.User;
+import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.review.Review;
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentSearchCondition;
 import com.sprint.sb06deokhugamteam01.dto.comment.response.CommentSliceResult;
