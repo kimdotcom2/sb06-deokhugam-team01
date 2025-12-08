@@ -335,11 +335,18 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(detailMap("reviewId", reviewId)));
 
+        Book book = review.getBook();
+
         // TODO Book의 reviewCount 1 감소 (soft delete 상태면 건너뜀)
-        // TODO Book의 Rating 업데이트
+        // if (review.isActive()) book.decreaseReviewCount();
+
         commentRepository.deleteAllByReview(review);
         reviewLikeRepository.deleteByReview(review);
         reviewRepository.delete(review);
+
+        // TODO Book의 Rating 업데이트
+        // book.calculateRating();
+        // bookRepository.save(book);
     }
 
     @Override
