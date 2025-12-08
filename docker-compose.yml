@@ -3,6 +3,7 @@ services:
     image: postgres:17-alpine
     container_name: deokhugam-postgres
     environment:
+      TZ: Asia/Seoul
       POSTGRES_DB: deokhugam
       POSTGRES_USER: deokhugam
       POSTGRES_PASSWORD: deokhugam

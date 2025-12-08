@@ -26,7 +26,7 @@ public class DailyBatchScheduler {
      */
     @Scheduled(cron = "0 0/1 * * * *")
     public void runDaily() throws Exception {
-        LocalDate targetDate = LocalDate.now().minusDays(1);
+        LocalDate targetDate = LocalDate.now();
 
         JobParameters params = new JobParametersBuilder()
                 .addString("targetDate", targetDate.toString())

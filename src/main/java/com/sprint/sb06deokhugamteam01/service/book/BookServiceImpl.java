@@ -13,6 +13,7 @@ import com.sprint.sb06deokhugamteam01.exception.book.InvalidIsbnException;
 import com.sprint.sb06deokhugamteam01.exception.book.BookNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -34,6 +35,7 @@ public class BookServiceImpl implements  BookService {
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
     private final ReviewRepository reviewRepository;
+    private final BatchBookRatingRepository batchBookRatingRepository;
     private final BookSearchService bookSearchService;
     private final OcrService ocrService;
 
@@ -152,6 +154,7 @@ public class BookServiceImpl implements  BookService {
             throw new BookNotFoundException(detailMap("id", id));
         }
 
+        batchBookRatingRepository.deleteByBook_Id(id);
         bookRepository.deleteById(id);
 
         //연관관계 매핑된 리뷰들 모두 삭제하기

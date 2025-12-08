@@ -91,6 +91,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void hardDeleteUser(UUID userId) {
         User user = getExistingUser(userId);
+        batchUserRatingRepository.deleteByUser_Id(userId);
         userRepository.delete(user);
     }
 
