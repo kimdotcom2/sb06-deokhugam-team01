@@ -40,6 +40,7 @@ public class BookServiceImpl implements  BookService {
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
     private final ReviewRepository reviewRepository;
+    private final PopularBookQRepository popularBookQRepository;
     private final BatchBookRatingRepository batchBookRatingRepository;
     private final PopularBookQRepository popularBookQRepository;
     private final BookSearchService bookSearchService;
