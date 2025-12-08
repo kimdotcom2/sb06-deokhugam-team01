@@ -92,7 +92,7 @@ class BookServiceImplTest {
     void getBookById_Success() {
 
         //given
-        when(bookRepository.findById(bookDto.id()))
+        when(bookRepository.findByIdAndIsActive(bookDto.id(), true))
                 .thenReturn(Optional.of(book));
 
         when(s3StorageService.getPresignedUrl(bookDto.thumbnailUrl()))
@@ -114,7 +114,7 @@ class BookServiceImplTest {
         //given
         UUID bookId = UUID.randomUUID();
 
-        when(bookRepository.findById(bookId))
+        when(bookRepository.findByIdAndIsActive(bookId, true))
                 .thenReturn(Optional.empty());
 
         //when
@@ -194,7 +194,7 @@ class BookServiceImplTest {
 
         MockMultipartFile mockThumbnail = new MockMultipartFile("thumbnail.png", "thumbnail.png", "image/png", new byte[]{1,2,3});
 
-        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
+        when(bookRepository.existsByIsbnAndIsActive(bookCreateRequest.isbn(), true))
                 .thenReturn(false);
 
         when(bookRepository.save(any(Book.class)))
@@ -228,10 +228,10 @@ class BookServiceImplTest {
                 "sdfadsfadsf"
         );
 
-        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
+        when(bookRepository.existsByIsbnAndIsActive(bookCreateRequest.isbn(), true))
                 .thenReturn(true);
 
-        when(bookRepository.findByIsbn(bookCreateRequest.isbn()))
+        when(bookRepository.findByIsbnAndIsActive(bookCreateRequest.isbn(), true))
                 .thenReturn(Optional.of(book));
 
         //when
@@ -261,7 +261,7 @@ class BookServiceImplTest {
 
         MockMultipartFile mockThumbnail = new MockMultipartFile("thumbnail.png", "thumbnail.png", "image/png", new byte[]{1,2,3});
 
-        when(bookRepository.existsByIsbn(bookCreateRequest.isbn()))
+        when(bookRepository.existsByIsbnAndIsActive(bookCreateRequest.isbn(), true))
                 .thenReturn(false);
 
         when(s3StorageService.putObject(anyString(), any(byte[].class)))
@@ -313,7 +313,7 @@ class BookServiceImplTest {
 
         Book updatedBook = BookUpdateRequest.fromDto(updateRequest);
 
-        when(bookRepository.findById(bookId))
+        when(bookRepository.findByIdAndIsActive(bookId, true))
                 .thenReturn(Optional.of(book));
 
         //when
@@ -344,7 +344,7 @@ class BookServiceImplTest {
                 .publishedDate(LocalDate.now())
                 .build();
 
-        when(bookRepository.findById(bookId))
+        when(bookRepository.findByIdAndIsActive(bookId, true))
                 .thenReturn(Optional.empty());
 
         //when
@@ -365,7 +365,7 @@ class BookServiceImplTest {
         UUID bookId = bookDto.id();
 
         //when
-        when(bookRepository.findById(bookId))
+        when(bookRepository.findByIdAndIsActive(bookId, true))
                 .thenReturn(Optional.of(book));
 
         //then

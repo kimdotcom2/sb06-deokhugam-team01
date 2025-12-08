@@ -175,7 +175,7 @@ public class BookServiceImpl implements  BookService {
     @Override
     public void hardDeleteBookById(UUID id) {
 
-        Book book = bookRepository.findByIdAndIsActive(id, true)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(detailMap("id", id)));
 
         s3StorageService.deleteObject(book.getThumbnailUrl());
