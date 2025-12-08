@@ -1,9 +1,8 @@
 package com.sprint.sb06deokhugamteam01.service.book;
 
-import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
 import com.sprint.sb06deokhugamteam01.domain.book.BookOrderBy;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
+import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.PopularBookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
@@ -19,6 +18,7 @@ import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.book.PopularBookQRepository;
+import com.sprint.sb06deokhugamteam01.repository.batch.BatchBookRatingRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -43,6 +43,7 @@ public class BookServiceImpl implements  BookService {
     private final PopularBookQRepository popularBookQRepository;
     private final BatchBookRatingRepository batchBookRatingRepository;
     private final PopularBookQRepository popularBookQRepository;
+    private final BatchBookRatingRepository batchBookRatingRepository;
     private final BookSearchService bookSearchService;
     private final OcrService ocrService;
 

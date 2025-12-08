@@ -1,9 +1,5 @@
 package com.sprint.sb06deokhugamteam01.dto.review.response;
 
-import com.sprint.sb06deokhugamteam01.domain.book.Book;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
-import com.sprint.sb06deokhugamteam01.domain.User;
-import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

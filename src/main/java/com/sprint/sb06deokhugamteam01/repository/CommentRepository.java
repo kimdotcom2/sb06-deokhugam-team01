@@ -1,7 +1,7 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.domain.Comment;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
+import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.repository.comment.CommentRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,8 +28,11 @@ public interface CommentRepository extends JpaRepository<Comment, UUID>, Comment
     @Query(value = "SELECT * FROM comments WHERE id=:id", nativeQuery = true)
     Optional<Comment> findByIdAndIsActiveFalse(@Param("id") UUID commentId);
 
-    //
     @Modifying(clearAutomatically = true)
     @Query(value = "DELETE FROM comments WHERE id=:id", nativeQuery = true)
     void hardDeleteById(@Param("id") UUID id);
+
+    @Modifying
+    @Query("DELETE FROM Comment c WHERE c.isActive = false")
+    void deleteAllByIsActiveFalse();
 }
