@@ -1,8 +1,6 @@
-package com.sprint.sb06deokhugamteam01.domain.review;
+package com.sprint.sb06deokhugamteam01.domain;
 
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
-import com.sprint.sb06deokhugamteam01.domain.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -14,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -25,6 +24,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Table(indexes = {
+        @Index(name = "idx_createdAt_cursor", columnList = "createdAt, id"), // createdAt 기준 커서
+        @Index(name = "idx_rating_cursor", columnList = "rating, createdAt, id") // rating 기준 커서
+})
 public class Review {
 
     @Id
@@ -54,7 +57,7 @@ public class Review {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "book_id")
     private Book book;
 
@@ -80,5 +83,13 @@ public class Review {
 
     public void decreaseLikeCount() {
         if (this.likeCount > 0) this.likeCount--;
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        if (this.commentCount > 0) this.commentCount--;
     }
 }
