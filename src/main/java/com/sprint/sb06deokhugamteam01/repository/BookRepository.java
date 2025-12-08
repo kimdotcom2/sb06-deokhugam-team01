@@ -1,6 +1,8 @@
 package com.sprint.sb06deokhugamteam01.repository;
 
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -18,5 +20,9 @@ public interface BookRepository extends BookQRepository {
     Optional<Book> findByIsbn(String isbn);
 
     void deleteById(UUID id);
+
+    @Modifying
+    @Query("DELETE FROM Book b WHERE b.isActive = false")
+    void deleteAllByIsActiveFalse();
 
 }

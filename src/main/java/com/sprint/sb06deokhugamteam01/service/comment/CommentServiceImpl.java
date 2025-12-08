@@ -2,7 +2,7 @@ package com.sprint.sb06deokhugamteam01.service.comment;
 
 import com.sprint.sb06deokhugamteam01.domain.Comment;
 import com.sprint.sb06deokhugamteam01.domain.Notification;
-import com.sprint.sb06deokhugamteam01.domain.review.Review;
+import com.sprint.sb06deokhugamteam01.domain.Review;
 import com.sprint.sb06deokhugamteam01.domain.User;
 import com.sprint.sb06deokhugamteam01.dto.comment.request.CommentCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.comment.CommentDto;
@@ -16,8 +16,8 @@ import com.sprint.sb06deokhugamteam01.exception.comment.CommentNotFoundException
 import com.sprint.sb06deokhugamteam01.exception.review.ReviewNotFoundException;
 import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
 import com.sprint.sb06deokhugamteam01.repository.notification.NotificationRepository;
-import com.sprint.sb06deokhugamteam01.repository.UserRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

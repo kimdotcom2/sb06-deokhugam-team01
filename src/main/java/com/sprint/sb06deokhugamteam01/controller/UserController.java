@@ -1,7 +1,9 @@
 package com.sprint.sb06deokhugamteam01.controller;
 
+import com.sprint.sb06deokhugamteam01.dto.User.request.PowerUserRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserLoginRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserRegisterRequest;
+import com.sprint.sb06deokhugamteam01.dto.User.response.CursorPageResponsePowerUserDto;
 import com.sprint.sb06deokhugamteam01.dto.User.response.UserDto;
 import com.sprint.sb06deokhugamteam01.dto.User.request.UserUpdateRequest;
 import com.sprint.sb06deokhugamteam01.service.user.UserService;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,5 +82,14 @@ public class UserController {
         log.info("User hard deleted successfully: {}", userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/power")
+    public ResponseEntity<CursorPageResponsePowerUserDto> getPowerUserList(@ModelAttribute PowerUserRequest powerUserRequest){
+        log.info("Received power user list request: {}", powerUserRequest);
+        CursorPageResponsePowerUserDto response = userService.getPowerUserList(powerUserRequest);
+        log.info("Power user list retrieved successfully: {}", response);
+        return ResponseEntity.ok(response);
+    }
+
 
 }
