@@ -4,11 +4,12 @@ import com.sprint.sb06deokhugamteam01.dto.book.BookDto;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookCreateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.BookUpdateRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.request.PagingBookRequest;
+import com.sprint.sb06deokhugamteam01.dto.book.request.PagingPopularBookRequest;
 import com.sprint.sb06deokhugamteam01.dto.book.response.BookInfo;
 import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPageResponseBookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.response.CursorPopularPageResponseBookDto;
 import com.sprint.sb06deokhugamteam01.service.book.BookService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -33,7 +33,20 @@ public class BookController {
             ) {
         log.info("Received Book get request: keyword={}", request.keyword());
         CursorPageResponseBookDto response = bookService.getBooksByPage(request);
-        log.info("Books retrieved successfully: {}", response);
+        log.info("Books retrieved successfully: {}", request.keyword());
+
+        return ResponseEntity.ok(response);
+
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<CursorPopularPageResponseBookDto> getPopularBooks(
+            @Valid @ModelAttribute PagingPopularBookRequest request
+    ) {
+        log.info("Received Popular Book get request: keyword={}",
+                request.cursor() != null ? request.cursor() : "null");
+        CursorPopularPageResponseBookDto response = bookService.getBooksByPopularPage(request);
+        log.info("Popular Books retrieved successfully: {}", response);
 
         return ResponseEntity.ok(response);
 
