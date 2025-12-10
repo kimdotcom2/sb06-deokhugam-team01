@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <springProperty scope="context" name="LOG_ARCHIVE_PATH" source="log.path.archive"/>
+    <springProperty scope="context" name="LOG_CURRENT_PATH" source="log.path.current"/>
 
     <property name="DEFAULT_LOG_PATTERN_STRING" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level **[%X{requestId}] [%X{clientIp}]** %logger{36} - %msg%n" />
 

@@ -1,10 +1,10 @@
-package com.sprint.sb06deokhugamteam01.config;
+package com.sprint.sb06deokhugamteam01.config.logging;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -15,7 +15,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-@Component
+@Configuration
 @Profile("!test")
 @Slf4j
 public class LogUploaderScheduler {
@@ -32,7 +32,7 @@ public class LogUploaderScheduler {
         this.s3Client = s3Client;
     }
 
-    @Scheduled(cron = "0 0 4 * * *")
+    @Scheduled(cron = "0 5 0 * * *")
     public void uploadDailyLogsToS3() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         String logFileName = "app-log-" + yesterday.format(DateTimeFormatter.ISO_DATE) + ".log";
