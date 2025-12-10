@@ -20,6 +20,7 @@ import com.sprint.sb06deokhugamteam01.mapper.ReviewMapper;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
+import com.sprint.sb06deokhugamteam01.repository.notification.NotificationRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
@@ -56,6 +57,9 @@ class ReviewServiceTest {
 
     @Mock
     private BatchReviewRatingRepository batchReviewRatingRepository;
+
+    @Mock
+    private NotificationRepository notificationRepository;
 
     @Mock
     private UserRepository userRepository;
