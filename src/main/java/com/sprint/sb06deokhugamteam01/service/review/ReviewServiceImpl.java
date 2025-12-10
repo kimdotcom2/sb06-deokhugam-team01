@@ -1,5 +1,6 @@
 package com.sprint.sb06deokhugamteam01.service.review;
 
+import com.sprint.sb06deokhugamteam01.domain.Notification;
 import com.sprint.sb06deokhugamteam01.domain.ReviewLike;
 import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
@@ -24,6 +25,7 @@ import com.sprint.sb06deokhugamteam01.exception.user.UserNotFoundException;
 import com.sprint.sb06deokhugamteam01.mapper.ReviewMapper;
 import com.sprint.sb06deokhugamteam01.repository.BookRepository;
 import com.sprint.sb06deokhugamteam01.repository.CommentRepository;
+import com.sprint.sb06deokhugamteam01.repository.notification.NotificationRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.batch.BatchReviewRatingRepository;
@@ -49,6 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
     private final BatchReviewRatingRepository batchReviewRatingRepository;
+    private final NotificationRepository notificationRepository;
     private final ReviewMapper reviewMapper;
 
     @Override
@@ -379,6 +382,14 @@ public class ReviewServiceImpl implements ReviewService {
                     .review(review)
                     .build();
             reviewLikeRepository.save(reviewLike);
+            Notification notification = Notification.builder()
+                    .user(review.getUser())
+                    .review(review)
+                    .confirmed(false)
+                    .content("[" + user.getNickname() + "]님이 나의 리뷰를 좋아합니다.")
+                    .build();
+
+            notificationRepository.save(notification);
             review.increaseLikeCount();
             liked = true;
         }
