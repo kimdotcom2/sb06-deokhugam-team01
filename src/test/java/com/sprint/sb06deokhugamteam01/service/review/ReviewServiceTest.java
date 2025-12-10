@@ -24,6 +24,7 @@ import com.sprint.sb06deokhugamteam01.repository.notification.NotificationReposi
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewLikeRepository;
 import com.sprint.sb06deokhugamteam01.repository.review.ReviewRepository;
 import com.sprint.sb06deokhugamteam01.repository.user.UserRepository;
+import com.sprint.sb06deokhugamteam01.service.book.S3StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,6 +73,9 @@ class ReviewServiceTest {
 
     @Mock
     private ReviewMapper reviewMapper;
+
+    @Mock
+    private S3StorageService s3StorageService;
 
     @InjectMocks
     private ReviewServiceImpl reviewService;
@@ -193,7 +197,7 @@ class ReviewServiceTest {
                 .rating(request.rating())
                 .build();
 
-        when(reviewMapper.toDto(any(Review.class), any(User.class))).thenReturn(mockReviewDto);
+        when(reviewMapper.toDto(any(Review.class), any(User.class), any())).thenReturn(mockReviewDto);
         when(reviewRepository.save(any(Review.class))).thenReturn(mockSavedReview);
 
         // when
@@ -242,7 +246,7 @@ class ReviewServiceTest {
                 .rating(testReview.getRating())
                 .build();
 
-        when(reviewMapper.toDto(any(Review.class), any(User.class))).thenReturn(mockReviewDto);
+        when(reviewMapper.toDto(any(Review.class), any(User.class), any())).thenReturn(mockReviewDto);
         when(userRepository.findById(requestUserId)).thenReturn(Optional.of(testRequestUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(testReview));
 
@@ -411,7 +415,7 @@ class ReviewServiceTest {
                 .rating(updateRequest.rating())
                 .build();
 
-        when(reviewMapper.toDto(any(Review.class), any(User.class))).thenReturn(mockReviewDto);
+        when(reviewMapper.toDto(any(Review.class), any(User.class), any())).thenReturn(mockReviewDto);
 
         // when
         ReviewDto response = reviewService.updateReview(reviewId, updateRequest, userId);
