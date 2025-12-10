@@ -24,10 +24,10 @@ public record BookUpdateRequest(
     public static Book fromDto(BookUpdateRequest request) {
 
         return Book.builder()
-                .title(request.title())
-                .author(request.author())
-                .description(request.description())
-                .publisher(request.publisher())
+                .title(request.title().trim())
+                .author(request.author().trim())
+                .description(request.description().trim())
+                .publisher(request.publisher().trim())
                 .publishedDate(request.publishedDate())
                 .build();
 

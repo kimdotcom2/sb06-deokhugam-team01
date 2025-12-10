@@ -26,12 +26,12 @@ public record BookCreateRequest(
     public static Book fromDto(BookCreateRequest request) {
 
         return Book.builder()
-                .title(request.title())
-                .author(request.author())
-                .description(request.description())
-                .publisher(request.publisher())
+                .title(request.title().trim())
+                .author(request.author().trim())
+                .description(request.description().trim())
+                .publisher(request.publisher().trim())
                 .publishedDate(request.publishedDate())
-                .isbn(request.isbn())
+                .isbn(request.isbn().trim())
                 .build();
 
     }
