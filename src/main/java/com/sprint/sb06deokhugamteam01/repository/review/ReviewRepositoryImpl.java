@@ -193,6 +193,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         // Review ID 추출 및 Review 엔티티 조회 (N+1 방지 대신 ID List 조회 방식 사용)
         List<UUID> reviewIds = limitedBatchResults.stream()
                 .map(rating -> rating.getReview().getId())
+                .distinct()
                 .collect(Collectors.toList());
 
         List<Review> results = queryFactory
@@ -205,6 +206,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         List<Review> orderedReviews = limitedBatchResults.stream()
                 .map(r -> reviewMap.get(r.getReview().getId()))
                 .filter(Objects::nonNull)
+                .distinct()
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(orderedReviews, pageable, hasNext);
