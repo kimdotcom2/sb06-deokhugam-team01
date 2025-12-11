@@ -5,9 +5,13 @@ import com.sprint.sb06deokhugamteam01.domain.batch.BatchBookRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.BatchUserRating;
 import com.sprint.sb06deokhugamteam01.domain.batch.PeriodType;
 import com.sprint.sb06deokhugamteam01.domain.book.Book;
+import com.sprint.sb06deokhugamteam01.dto.User.request.PowerUserRequest;
 import com.sprint.sb06deokhugamteam01.dto.User.response.CursorPageResponsePowerUserDto;
 import com.sprint.sb06deokhugamteam01.dto.User.response.PowerUserDto;
 import com.sprint.sb06deokhugamteam01.dto.book.PopularBookDto;
+import com.sprint.sb06deokhugamteam01.dto.book.naver.BookData;
+import com.sprint.sb06deokhugamteam01.dto.book.naver.NaverBookSearchResponse;
+import com.sprint.sb06deokhugamteam01.dto.notification.PageNotificationRequest;
 import com.sprint.sb06deokhugamteam01.exception.ErrorCode;
 import com.sprint.sb06deokhugamteam01.exception.RootException;
 import org.junit.jupiter.api.DisplayName;
@@ -111,5 +115,62 @@ public class DtoTest {
         );
 
         assertThat(dto.totalElements()).isEqualTo(100);
+    }
+
+    @Test
+    @DisplayName("BookData 테스트")
+    void BookDataTest() {
+        // given & when
+        BookData bookData = new BookData("책", "link", "image", "저자",
+                "discount", "publisher", "20251210", "isbn", "description");
+
+        // then
+        assertThat(bookData.getPublishedDate()).isEqualTo(LocalDate.of(2025, 12, 10));
+    }
+    @Test
+    @DisplayName("BookData 테스트 - invalid pubdate")
+    void BookDataTest_InvalidPubdate() {
+        // given & when
+        BookData bookData = new BookData("책", "link", "image", "저자",
+                "discount", "publisher", "222", "isbn", "description");
+
+        // then
+        assertThat(bookData.getPublishedDate()).isNull();
+    }
+    @Test
+    @DisplayName("NaverBookSearchResponse 테스트")
+    void NaverBookSearchResponseTest() {
+        // given & when
+        NaverBookSearchResponse response = new NaverBookSearchResponse(
+                "20220202", 10, 10, 10, new BookData[]{}
+        );
+
+        // then
+        assertThat(response.items()).isEmpty();
+    }
+    @Test
+    @DisplayName("PageNotificationRequest 테스트")
+    void PageNotificationRequestTest() {
+        // given & when
+        PageNotificationRequest request = new PageNotificationRequest(
+                UUID.randomUUID(), "ASC", "cursor", LocalDateTime.now(), 10
+        );
+
+        // then
+        assertThat(request.isAscending()).isTrue();
+    }
+    @Test
+    @DisplayName("PowerUserRequest 테스트")
+    void PowerUserRequestTest() {
+        // given & when
+        LocalDateTime time = LocalDateTime.now();
+        PowerUserRequest request = new PowerUserRequest(
+                "monthly", "ASC", "cursor", time, 10
+        );
+        request.toPeriodType();
+        request.setPeriodStart(LocalDate.now());
+
+        // then
+        assertThat(request.after()).isEqualTo(time);
     }
 }
